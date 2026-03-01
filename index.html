@@ -174,12 +174,21 @@ if(currentView === "active") {
 
 if (ride.status === "new") {
 
+const etaInput = document.createElement("input");
+etaInput.type = "number";
+etaInput.placeholder = "Minuty";
+etaInput.className = "mt-2 p-1 w-20 text-black rounded mr-2";
+
 const confirmBtn = document.createElement("button");
 confirmBtn.innerText = "Potvrdit";
 confirmBtn.className = "mt-2 bg-green-500 px-3 py-1 rounded mr-2";
 confirmBtn.onclick = () => {
 stopAlarm();
-updateDoc(doc(db, "rides", rideId), { status: "confirmed" });
+const etaValue = parseInt(etaInput.value) || 5;
+updateDoc(doc(db, "rides", rideId), { 
+status: "confirmed",
+eta: etaValue
+});
 };
 
 const rejectBtn = document.createElement("button");
@@ -190,6 +199,7 @@ stopAlarm();
 updateDoc(doc(db, "rides", rideId), { status: "rejected" });
 };
 
+rideDiv.appendChild(etaInput);
 rideDiv.appendChild(confirmBtn);
 rideDiv.appendChild(rejectBtn);
 }
