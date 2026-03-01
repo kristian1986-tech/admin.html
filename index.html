@@ -11,29 +11,36 @@
 
 <h1 class="text-2xl font-bold mb-6">Admin Panel - Taxi Plzeň</h1>
 
-<!-- LOGIN FORM -->
+<!-- LOGIN -->
 <div id="loginSection" class="max-w-md space-y-4">
 <input id="email" type="email" placeholder="Email"
 class="w-full p-3 rounded bg-gray-800 border border-gray-700">
-
 <input id="password" type="password" placeholder="Password"
 class="w-full p-3 rounded bg-gray-800 border border-gray-700">
-
 <button onclick="login()"
 class="w-full bg-yellow-500 text-black font-bold py-3 rounded">
 Přihlásit se
 </button>
-
 <p id="loginError" class="text-red-400"></p>
 </div>
 
-<!-- ADMIN CONTENT -->
+<!-- ADMIN -->
 <div id="adminSection" class="hidden">
 
+<div class="flex gap-4 mb-6">
+<button onclick="showActive()"
+class="bg-yellow-500 text-black px-4 py-2 rounded">
+Aktivní jízdy
+</button>
+<button onclick="showHistory()"
+class="bg-gray-700 px-4 py-2 rounded">
+Historie
+</button>
 <button onclick="logout()"
-class="mb-6 bg-red-500 px-4 py-2 rounded">
+class="bg-red-500 px-4 py-2 rounded ml-auto">
 Odhlásit se
 </button>
+</div>
 
 <div id="ridesList" class="space-y-4"></div>
 
@@ -51,8 +58,7 @@ const firebaseConfig = {
   projectId: "taxi-kristian",
   storageBucket: "taxi-kristian.firebasestorage.app",
   messagingSenderId: "872925880546",
-  appId: "1:872925880546:web:12da74898c90a0155b7ebb",
-  measurementId: "G-6W7305ZX43"
+  appId: "1:872925880546:web:12da74898c90a0155b7ebb"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -62,6 +68,8 @@ const auth = getAuth(app);
 const loginSection = document.getElementById("loginSection");
 const adminSection = document.getElementById("adminSection");
 const ridesList = document.getElementById("ridesList");
+
+let currentView = "active";
 
 window.login = async function() {
 const email = document.getElementById("email").value;
@@ -78,6 +86,16 @@ window.logout = function() {
 signOut(auth);
 };
 
+window.showActive = function() {
+currentView = "active";
+loadRides();
+};
+
+window.showHistory = function() {
+currentView = "history";
+loadRides();
+};
+
 onAuthStateChanged(auth, user => {
 if(user) {
 loginSection.classList.add("hidden");
@@ -90,6 +108,7 @@ adminSection.classList.add("hidden");
 });
 
 function loadRides() {
+
 onSnapshot(collection(db, "rides"), snapshot => {
 
 ridesList.innerHTML = "";
@@ -99,17 +118,19 @@ snapshot.forEach(docSnap => {
 const ride = docSnap.data();
 const rideId = docSnap.id;
 
-// ❌ Nu afișăm cursele terminate
-if (ride.status === "completed") return;
+if(currentView === "active" && ride.status === "completed") return;
+if(currentView === "history" && ride.status !== "completed") return;
 
 const rideDiv = document.createElement("div");
 
-// 🎨 Culoare în funcție de status
 if (ride.status === "new") {
 rideDiv.className = "bg-yellow-600 p-4 rounded";
 }
 else if (ride.status === "confirmed") {
 rideDiv.className = "bg-blue-600 p-4 rounded";
+}
+else {
+rideDiv.className = "bg-gray-700 p-4 rounded";
 }
 
 rideDiv.innerHTML = `
@@ -119,38 +140,29 @@ rideDiv.innerHTML = `
 <p><strong>Status:</strong> ${ride.status}</p>
 `;
 
+if(currentView === "active") {
+
 const btn = document.createElement("button");
 
 if (ride.status === "new") {
-
 btn.innerText = "Potvrdit";
 btn.className = "mt-2 bg-green-500 px-3 py-1 rounded";
-
-btn.addEventListener("click", async () => {
-await updateDoc(doc(db, "rides", rideId), {
-status: "confirmed"
-});
-});
-
+btn.onclick = () => updateDoc(doc(db, "rides", rideId), { status: "confirmed" });
 }
 
 if (ride.status === "confirmed") {
-
 btn.innerText = "Dokončit";
 btn.className = "mt-2 bg-gray-900 px-3 py-1 rounded";
-
-btn.addEventListener("click", async () => {
-await updateDoc(doc(db, "rides", rideId), {
-status: "completed"
-});
-});
-
+btn.onclick = () => updateDoc(doc(db, "rides", rideId), { status: "completed" });
 }
 
 rideDiv.appendChild(btn);
+}
+
 ridesList.appendChild(rideDiv);
 
 });
+
 });
 }
 
