@@ -71,7 +71,7 @@ const ridesList = document.getElementById("ridesList");
 
 let currentView = "active";
 
-// 🔔 SUNET MAI LUNG
+// 🔔 Alarmă
 const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
 notificationSound.volume = 1.0;
 let alarmTimeout = null;
@@ -93,10 +93,9 @@ if(alarmTimeout) clearTimeout(alarmTimeout);
 window.login = async function() {
 const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
-
 try {
 await signInWithEmailAndPassword(auth, email, password);
-} catch (error) {
+} catch {
 document.getElementById("loginError").innerText = "Chyba přihlášení";
 }
 };
@@ -157,6 +156,9 @@ rideDiv.className = "bg-yellow-600 p-4 rounded";
 else if (ride.status === "confirmed") {
 rideDiv.className = "bg-blue-600 p-4 rounded";
 }
+else if (ride.status === "rejected") {
+rideDiv.className = "bg-red-700 p-4 rounded";
+}
 else {
 rideDiv.className = "bg-gray-700 p-4 rounded";
 }
@@ -170,24 +172,36 @@ rideDiv.innerHTML = `
 
 if(currentView === "active") {
 
-const btn = document.createElement("button");
-
 if (ride.status === "new") {
-btn.innerText = "Potvrdit";
-btn.className = "mt-2 bg-green-500 px-3 py-1 rounded";
-btn.onclick = () => {
+
+const confirmBtn = document.createElement("button");
+confirmBtn.innerText = "Potvrdit";
+confirmBtn.className = "mt-2 bg-green-500 px-3 py-1 rounded mr-2";
+confirmBtn.onclick = () => {
 stopAlarm();
 updateDoc(doc(db, "rides", rideId), { status: "confirmed" });
 };
+
+const rejectBtn = document.createElement("button");
+rejectBtn.innerText = "Odmítnout";
+rejectBtn.className = "mt-2 bg-red-600 px-3 py-1 rounded";
+rejectBtn.onclick = () => {
+stopAlarm();
+updateDoc(doc(db, "rides", rideId), { status: "rejected" });
+};
+
+rideDiv.appendChild(confirmBtn);
+rideDiv.appendChild(rejectBtn);
 }
 
 if (ride.status === "confirmed") {
-btn.innerText = "Dokončit";
-btn.className = "mt-2 bg-gray-900 px-3 py-1 rounded";
-btn.onclick = () => updateDoc(doc(db, "rides", rideId), { status: "completed" });
+const finishBtn = document.createElement("button");
+finishBtn.innerText = "Dokončit";
+finishBtn.className = "mt-2 bg-gray-900 px-3 py-1 rounded";
+finishBtn.onclick = () => updateDoc(doc(db, "rides", rideId), { status: "completed" });
+rideDiv.appendChild(finishBtn);
 }
 
-rideDiv.appendChild(btn);
 }
 
 ridesList.appendChild(rideDiv);
