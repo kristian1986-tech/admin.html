@@ -145,8 +145,12 @@ snapshot.forEach(docSnap => {
 const ride = docSnap.data();
 const rideId = docSnap.id;
 
-if(currentView === "active" && ride.status === "completed") return;
-if(currentView === "history" && ride.status !== "completed") return;
+// 🔥 FILTRARE CORECTĂ
+if(currentView === "active" && 
+   (ride.status === "completed" || ride.status === "rejected")) return;
+
+if(currentView === "history" && 
+   (ride.status === "new" || ride.status === "confirmed")) return;
 
 const rideDiv = document.createElement("div");
 
