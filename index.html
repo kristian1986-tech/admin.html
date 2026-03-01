@@ -70,8 +70,25 @@ const adminSection = document.getElementById("adminSection");
 const ridesList = document.getElementById("ridesList");
 
 let currentView = "active";
-let knownRideIds = [];
-const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+
+// 🔔 SUNET MAI LUNG
+const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+notificationSound.volume = 1.0;
+let alarmTimeout = null;
+
+function playLongAlarm() {
+notificationSound.currentTime = 0;
+notificationSound.play().catch(() => {});
+alarmTimeout = setTimeout(() => {
+notificationSound.play().catch(() => {});
+}, 3500);
+}
+
+function stopAlarm() {
+notificationSound.pause();
+notificationSound.currentTime = 0;
+if(alarmTimeout) clearTimeout(alarmTimeout);
+}
 
 window.login = async function() {
 const email = document.getElementById("email").value;
@@ -117,7 +134,7 @@ snapshot.docChanges().forEach(change => {
 if (change.type === "added") {
 const newRide = change.doc.data();
 if (newRide.status === "new") {
-notificationSound.play().catch(() => {});
+playLongAlarm();
 }
 }
 });
@@ -158,7 +175,10 @@ const btn = document.createElement("button");
 if (ride.status === "new") {
 btn.innerText = "Potvrdit";
 btn.className = "mt-2 bg-green-500 px-3 py-1 rounded";
-btn.onclick = () => updateDoc(doc(db, "rides", rideId), { status: "confirmed" });
+btn.onclick = () => {
+stopAlarm();
+updateDoc(doc(db, "rides", rideId), { status: "confirmed" });
+};
 }
 
 if (ride.status === "confirmed") {
