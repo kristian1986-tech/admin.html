@@ -91,33 +91,68 @@ adminSection.classList.add("hidden");
 
 function loadRides() {
 onSnapshot(collection(db, "rides"), snapshot => {
+
 ridesList.innerHTML = "";
 
 snapshot.forEach(docSnap => {
+
 const ride = docSnap.data();
 const rideId = docSnap.id;
 
-ridesList.innerHTML += `
-<div class="bg-gray-800 p-4 rounded">
+// ❌ Nu afișăm cursele terminate
+if (ride.status === "completed") return;
+
+const rideDiv = document.createElement("div");
+
+// 🎨 Culoare în funcție de status
+if (ride.status === "new") {
+rideDiv.className = "bg-yellow-600 p-4 rounded";
+}
+else if (ride.status === "confirmed") {
+rideDiv.className = "bg-blue-600 p-4 rounded";
+}
+
+rideDiv.innerHTML = `
 <p><strong>Odkud:</strong> ${ride.pickup}</p>
 <p><strong>Kam:</strong> ${ride.destination}</p>
 <p><strong>Telefon:</strong> ${ride.phone}</p>
 <p><strong>Status:</strong> ${ride.status}</p>
-<button onclick="confirmRide('${rideId}')"
-class="mt-2 bg-green-500 px-3 py-1 rounded">
-Potvrdit
-</button>
-</div>
 `;
+
+const btn = document.createElement("button");
+
+if (ride.status === "new") {
+
+btn.innerText = "Potvrdit";
+btn.className = "mt-2 bg-green-500 px-3 py-1 rounded";
+
+btn.addEventListener("click", async () => {
+await updateDoc(doc(db, "rides", rideId), {
+status: "confirmed"
+});
+});
+
+}
+
+if (ride.status === "confirmed") {
+
+btn.innerText = "Dokončit";
+btn.className = "mt-2 bg-gray-900 px-3 py-1 rounded";
+
+btn.addEventListener("click", async () => {
+await updateDoc(doc(db, "rides", rideId), {
+status: "completed"
+});
+});
+
+}
+
+rideDiv.appendChild(btn);
+ridesList.appendChild(rideDiv);
+
 });
 });
 }
-
-window.confirmRide = async function(id) {
-await updateDoc(doc(db, "rides", id), {
-status: "confirmed"
-});
-};
 
 </script>
 
