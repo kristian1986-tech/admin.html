@@ -70,6 +70,8 @@ const adminSection = document.getElementById("adminSection");
 const ridesList = document.getElementById("ridesList");
 
 let currentView = "active";
+let knownRideIds = [];
+const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
 window.login = async function() {
 const email = document.getElementById("email").value;
@@ -110,6 +112,15 @@ adminSection.classList.add("hidden");
 function loadRides() {
 
 onSnapshot(collection(db, "rides"), snapshot => {
+
+snapshot.docChanges().forEach(change => {
+if (change.type === "added") {
+const newRide = change.doc.data();
+if (newRide.status === "new") {
+notificationSound.play().catch(() => {});
+}
+}
+});
 
 ridesList.innerHTML = "";
 
