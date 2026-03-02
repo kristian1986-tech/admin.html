@@ -51,12 +51,12 @@ import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://ww
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCSapx5d9v_fxpPBzuOfnH66lvQoQ8H-6E",
-  authDomain: "taxi-kristian.firebaseapp.com",
-  projectId: "taxi-kristian",
-  storageBucket: "taxi-kristian.firebasestorage.app",
-  messagingSenderId: "872925880546",
-  appId: "1:872925880546:web:12da74898c90a0155b7ebb"
+apiKey: "AIzaSyCSapx5d9v_fxpPBzuOfnH66lvQoQ8H-6E",
+authDomain: "taxi-kristian.firebaseapp.com",
+projectId: "taxi-kristian",
+storageBucket: "taxi-kristian.firebasestorage.app",
+messagingSenderId: "872925880546",
+appId: "1:872925880546:web:12da74898c90a0155b7ebb"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -137,7 +137,6 @@ playLongAlarm();
 
 ridesList.innerHTML = "";
 
-// 🔥 transformăm snapshot în array
 let ridesArray = [];
 
 snapshot.forEach(docSnap => {
@@ -147,7 +146,6 @@ id: docSnap.id,
 });
 });
 
-// 🔥 SORTARE
 ridesArray.sort((a, b) => {
 
 if(currentView === "active") {
@@ -157,19 +155,20 @@ return (priority[a.status] || 99) - (priority[b.status] || 99);
 }
 }
 
-// cele mai noi primele
 return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
 
 });
 
-// 🔥 AFIȘARE
 ridesArray.forEach(ride => {
 
 if(currentView === "active" && 
-   (ride.status === "completed" || ride.status === "rejected")) return;
+   (ride.status === "completed" || 
+    ride.status === "rejected" || 
+    ride.status === "cancelled")) return;
 
 if(currentView === "history" && 
-   (ride.status === "new" || ride.status === "confirmed")) return;
+   (ride.status === "new" || 
+    ride.status === "confirmed")) return;
 
 const rideDiv = document.createElement("div");
 
@@ -181,6 +180,9 @@ rideDiv.className = "bg-blue-600 p-4 rounded";
 }
 else if (ride.status === "rejected") {
 rideDiv.className = "bg-red-700 p-4 rounded";
+}
+else if (ride.status === "cancelled") {
+rideDiv.className = "bg-purple-700 p-4 rounded";
 }
 else {
 rideDiv.className = "bg-gray-700 p-4 rounded";
