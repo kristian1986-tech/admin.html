@@ -25,6 +25,21 @@ Přihlásit se
 
 <div id="adminSection" class="hidden">
 
+<!-- 🔥 DASHBOARD TOTALURI -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+<div class="bg-gray-800 p-4 rounded">
+<p class="text-gray-400">💰 Dnes</p>
+<p id="todayTotal" class="text-2xl font-bold text-green-400">0 Kč</p>
+</div>
+
+<div class="bg-gray-800 p-4 rounded">
+<p class="text-gray-400">📅 Tento měsíc</p>
+<p id="monthTotal" class="text-2xl font-bold text-yellow-400">0 Kč</p>
+</div>
+
+</div>
+
 <div class="flex gap-4 mb-6 items-center flex-wrap">
 <button onclick="showActive()"
 class="bg-yellow-500 text-black px-4 py-2 rounded">
@@ -93,11 +108,40 @@ if(user){
 document.getElementById("loginSection").classList.add("hidden");
 document.getElementById("adminSection").classList.remove("hidden");
 loadRides();
+loadDashboard();
 }else{
 document.getElementById("loginSection").classList.remove("hidden");
 document.getElementById("adminSection").classList.add("hidden");
 }
 });
+
+async function loadDashboard(){
+
+const snapshot = await getDocs(collection(db,"receipts"));
+
+let todayTotal = 0;
+let monthTotal = 0;
+
+const now = new Date();
+const todayStr = now.toDateString();
+
+snapshot.forEach(docSnap=>{
+const data = docSnap.data();
+const date = new Date(data.date.seconds * 1000);
+
+if(date.toDateString() === todayStr){
+todayTotal += data.price;
+}
+
+if(date.getMonth() === now.getMonth() &&
+   date.getFullYear() === now.getFullYear()){
+monthTotal += data.price;
+}
+});
+
+document.getElementById("todayTotal").innerText = todayTotal + " Kč";
+document.getElementById("monthTotal").innerText = monthTotal + " Kč";
+}
 
 async function generateReceiptNumber() {
 const year = new Date().getFullYear();
@@ -137,6 +181,7 @@ receiptDate
 await addDoc(collection(db,"receipts"), receiptData);
 
 alert("Účtenka vytvořena: " + receiptNumber);
+loadDashboard();
 }
 
 async function exportMonthly(){
@@ -158,9 +203,7 @@ const data = docSnap.data();
 const date = new Date(data.date.seconds * 1000);
 
 if(date.getFullYear()==year && (date.getMonth()+1)==month){
-
 total += data.price;
-
 csv += `${data.receiptNumber};${date.toLocaleDateString()};${data.pickup} → ${data.destination};${data.distance};${data.price};${data.phone}\n`;
 }
 });
