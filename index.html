@@ -47,7 +47,7 @@ Odhlásit se
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, runTransaction, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -98,7 +98,6 @@ const counterRef = doc(db, "counters", "receipts_" + year);
 return await runTransaction(db, async (transaction) => {
 
 const counterDoc = await transaction.get(counterRef);
-
 let newNumber = 1;
 
 if(counterDoc.exists()){
@@ -110,6 +109,42 @@ transaction.set(counterRef, { lastNumber: newNumber }, { merge: true });
 return `${year}-${String(newNumber).padStart(4,"0")}`;
 
 });
+}
+
+async function completeRide(ride){
+
+const receiptNumber = await generateReceiptNumber();
+const receiptDate = new Date();
+
+const receiptData = {
+receiptNumber: receiptNumber,
+date: receiptDate,
+pickup: ride.pickup,
+destination: ride.destination,
+distance: ride.distance,
+price: ride.estimatedPrice,
+phone: ride.phone,
+company:{
+name:"Nicolae Cristian",
+ico:"06928391",
+address:"Komenskeho 1075/77, Plzen",
+phone:"+420 777 842 870",
+note:"Neplátce DPH"
+}
+};
+
+// update ride
+await updateDoc(doc(db,"rides",ride.id),{
+status:"completed",
+receiptNumber:receiptNumber,
+receiptDate:receiptDate,
+company:receiptData.company
+});
+
+// save for accounting
+await addDoc(collection(db,"receipts"), receiptData);
+
+alert("Účtenka vytvořena: " + receiptNumber);
 }
 
 function loadRides() {
@@ -152,24 +187,7 @@ const finishBtn=document.createElement("button");
 finishBtn.innerText="Dokončit";
 finishBtn.className="mt-3 bg-green-600 px-4 py-2 rounded";
 
-finishBtn.onclick=async()=>{
-
-const receiptNumber=await generateReceiptNumber();
-
-await updateDoc(doc(db,"rides",ride.id),{
-status:"completed",
-receiptNumber:receiptNumber,
-receiptDate:new Date(),
-company:{
-name:"Nicolae Cristian",
-ico:"06928391",
-address:"Komenskeho 1075/77, Plzen",
-phone:"+420 777 842 870",
-note:"Neplátce DPH"
-}
-});
-
-};
+finishBtn.onclick=()=>completeRide(ride);
 
 rideDiv.appendChild(finishBtn);
 }
