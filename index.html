@@ -82,10 +82,10 @@ let currentView = "active";
 window.login = async function() {
 try {
 await signInWithEmailAndPassword(auth,
-document.getElementById("email").value,
-document.getElementById("password").value);
+email.value,
+password.value);
 } catch {
-document.getElementById("loginError").innerText = "Chyba přihlášení";
+loginError.innerText = "Chyba přihlášení";
 }
 };
 
@@ -105,7 +105,7 @@ adminSection.classList.add("hidden");
 }
 });
 
-/* DASHBOARD */
+/* DASHBOARD FIX */
 
 async function loadDashboard(){
 const snapshot = await getDocs(collection(db,"receipts"));
@@ -114,18 +114,20 @@ const now=new Date();
 
 snapshot.forEach(docSnap=>{
 const data=docSnap.data();
+if(!data.date) return;
+
 const date=new Date(data.date.seconds*1000);
 
 if(date.toDateString()===now.toDateString())
-todayTotal+=data.price;
+todayTotal+=data.price||0;
 
 if(date.getMonth()===now.getMonth() &&
 date.getFullYear()===now.getFullYear())
-monthTotal+=data.price;
+monthTotal+=data.price||0;
 });
 
-todayTotalEl.innerText=todayTotal+" Kč";
-monthTotalEl.innerText=monthTotal+" Kč";
+document.getElementById("todayTotal").innerText = todayTotal+" Kč";
+document.getElementById("monthTotal").innerText = monthTotal+" Kč";
 }
 
 /* RECEIPT */
@@ -161,13 +163,47 @@ date:receiptDate,
 pickup:ride.pickup,
 destination:ride.destination,
 distance:ride.distance,
-price:ride.estimatedPrice,
-phone:ride.phone
+price:ride.estimatedPrice||0,
+phone:ride.phone||""
 });
 
 alert("Účtenka vytvořena: "+receiptNumber);
 loadDashboard();
 }
+
+/* EXPORT FIX */
+
+window.exportMonthly = async function(){
+
+const monthValue = document.getElementById("exportMonth").value;
+if(!monthValue){
+alert("Vyberte měsíc.");
+return;
+}
+
+const [year,month] = monthValue.split("-");
+const snapshot = await getDocs(collection(db,"receipts"));
+
+let csv = "Číslo;Datum;Odkud;Kam;Cena;Telefon\n";
+
+snapshot.forEach(docSnap=>{
+const data = docSnap.data();
+if(!data.date) return;
+
+const date = new Date(data.date.seconds*1000);
+
+if(date.getFullYear()==year && (date.getMonth()+1)==parseInt(month)){
+csv += `${data.receiptNumber};${date.toLocaleDateString()};${data.pickup};${data.destination};${data.price};${data.phone}\n`;
+}
+});
+
+const blob = new Blob([csv],{type:"text/csv"});
+const url = URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = `export_${monthValue}.csv`;
+a.click();
+};
 
 /* LOAD RIDES */
 
@@ -191,7 +227,9 @@ rideDiv.className="bg-gray-700 p-4 rounded";
 rideDiv.innerHTML=`
 <p><strong>Odkud:</strong> ${ride.pickup}</p>
 <p><strong>Kam:</strong> ${ride.destination}</p>
+<p><strong>Telefon:</strong> ${ride.phone || "-"}</p>
 <p><strong>Status:</strong> ${ride.status}</p>
+${ride.eta ? `<p><strong>ETA:</strong> ${ride.eta} min</p>` : ""}
 ${ride.receiptNumber?`<p class="text-green-400 mt-2"><strong>Účtenka:</strong> ${ride.receiptNumber}</p>`:""}
 `;
 
@@ -218,9 +256,7 @@ const rejectBtn=document.createElement("button");
 rejectBtn.innerText="Odmítnout";
 rejectBtn.className="mt-3 bg-red-600 px-4 py-2 rounded";
 rejectBtn.onclick=()=>{
-updateDoc(doc(db,"rides",ride.id),{
-status:"rejected"
-});
+updateDoc(doc(db,"rides",ride.id),{status:"rejected"});
 };
 
 rideDiv.appendChild(etaInput);
@@ -247,8 +283,6 @@ finishBtn.onclick=()=>completeRide(ride);
 rideDiv.appendChild(arrivedBtn);
 rideDiv.appendChild(finishBtn);
 }
-
-/* ARRIVED */
 
 if(currentView==="active" && ride.status==="arrived"){
 const finishBtn=document.createElement("button");
