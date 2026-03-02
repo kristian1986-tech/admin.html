@@ -25,7 +25,6 @@ Přihlásit se
 
 <div id="adminSection" class="hidden">
 
-<!-- 🔥 DASHBOARD TOTALURI -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 
 <div class="bg-gray-800 p-4 rounded">
@@ -89,6 +88,8 @@ const auth = getAuth(app);
 
 let currentView = "active";
 
+/* LOGIN */
+
 window.login = async function() {
 try {
 await signInWithEmailAndPassword(auth,
@@ -114,6 +115,8 @@ document.getElementById("loginSection").classList.remove("hidden");
 document.getElementById("adminSection").classList.add("hidden");
 }
 });
+
+/* DASHBOARD */
 
 async function loadDashboard(){
 
@@ -143,6 +146,8 @@ document.getElementById("todayTotal").innerText = todayTotal + " Kč";
 document.getElementById("monthTotal").innerText = monthTotal + " Kč";
 }
 
+/* RECEIPT */
+
 async function generateReceiptNumber() {
 const year = new Date().getFullYear();
 const counterRef = doc(db, "counters", "receipts_" + year);
@@ -162,7 +167,13 @@ async function completeRide(ride){
 const receiptNumber = await generateReceiptNumber();
 const receiptDate = new Date();
 
-const receiptData = {
+await updateDoc(doc(db,"rides",ride.id),{
+status:"completed",
+receiptNumber,
+receiptDate
+});
+
+await addDoc(collection(db,"receipts"),{
 receiptNumber,
 date: receiptDate,
 pickup: ride.pickup,
@@ -170,52 +181,13 @@ destination: ride.destination,
 distance: ride.distance,
 price: ride.estimatedPrice,
 phone: ride.phone
-};
-
-await updateDoc(doc(db,"rides",ride.id),{
-status:"completed",
-receiptNumber,
-receiptDate
 });
-
-await addDoc(collection(db,"receipts"), receiptData);
 
 alert("Účtenka vytvořena: " + receiptNumber);
 loadDashboard();
 }
 
-async function exportMonthly(){
-
-const monthValue = document.getElementById("exportMonth").value;
-if(!monthValue){
-alert("Vyberte měsíc.");
-return;
-}
-
-const [year, month] = monthValue.split("-");
-const snapshot = await getDocs(collection(db,"receipts"));
-
-let csv = "Číslo;Datum;Trasa;Km;Cena;Telefon\n";
-let total = 0;
-
-snapshot.forEach(docSnap=>{
-const data = docSnap.data();
-const date = new Date(data.date.seconds * 1000);
-
-if(date.getFullYear()==year && (date.getMonth()+1)==month){
-total += data.price;
-csv += `${data.receiptNumber};${date.toLocaleDateString()};${data.pickup} → ${data.destination};${data.distance};${data.price};${data.phone}\n`;
-}
-});
-
-csv += `\nCelkem za měsíc;;; ;${total} Kč;\n`;
-
-const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-const link = document.createElement("a");
-link.href = URL.createObjectURL(blob);
-link.download = `uctenky_${month}_${year}.csv`;
-link.click();
-}
+/* LOAD RIDES */
 
 function loadRides() {
 onSnapshot(collection(db,"rides"), snapshot => {
@@ -231,7 +203,7 @@ if(currentView==="active" &&
 (ride.status==="completed"||ride.status==="rejected"||ride.status==="cancelled")) return;
 
 if(currentView==="history" &&
-(ride.status==="new"||ride.status==="confirmed")) return;
+(ride.status==="new"||ride.status==="confirmed"||ride.status==="arrived")) return;
 
 const rideDiv=document.createElement("div");
 rideDiv.className="bg-gray-700 p-4 rounded";
@@ -243,18 +215,46 @@ rideDiv.innerHTML=`
 ${ride.receiptNumber ? `<p class="text-green-400 mt-2"><strong>Účtenka:</strong> ${ride.receiptNumber}</p>`:""}
 `;
 
+/* 🔥 CONFIRMED */
+
 if(currentView==="active" && ride.status==="confirmed"){
+
+const arrivedBtn=document.createElement("button");
+arrivedBtn.innerText="Řidič přijel";
+arrivedBtn.className="mt-3 bg-blue-600 px-4 py-2 rounded mr-2";
+
+arrivedBtn.onclick=()=>{
+updateDoc(doc(db,"rides",ride.id),{
+status:"arrived"
+});
+};
+
 const finishBtn=document.createElement("button");
 finishBtn.innerText="Dokončit";
 finishBtn.className="mt-3 bg-green-600 px-4 py-2 rounded";
+
 finishBtn.onclick=()=>completeRide(ride);
+
+rideDiv.appendChild(arrivedBtn);
+rideDiv.appendChild(finishBtn);
+}
+
+/* 🔥 ARRIVED */
+
+if(currentView==="active" && ride.status==="arrived"){
+
+const finishBtn=document.createElement("button");
+finishBtn.innerText="Dokončit";
+finishBtn.className="mt-3 bg-green-600 px-4 py-2 rounded";
+
+finishBtn.onclick=()=>completeRide(ride);
+
 rideDiv.appendChild(finishBtn);
 }
 
 ridesList.appendChild(rideDiv);
 
 });
-
 });
 }
 
