@@ -26,45 +26,34 @@ Přihlásit se
 <div id="adminSection" class="hidden">
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
 <div class="bg-gray-800 p-4 rounded">
 <p class="text-gray-400">💰 Dnes</p>
 <p id="todayTotal" class="text-2xl font-bold text-green-400">0 Kč</p>
 </div>
-
 <div class="bg-gray-800 p-4 rounded">
 <p class="text-gray-400">📅 Tento měsíc</p>
 <p id="monthTotal" class="text-2xl font-bold text-yellow-400">0 Kč</p>
 </div>
-
 </div>
 
 <div class="flex gap-4 mb-6 items-center flex-wrap">
-<button onclick="showActive()"
-class="bg-yellow-500 text-black px-4 py-2 rounded">
+<button onclick="showActive()" class="bg-yellow-500 text-black px-4 py-2 rounded">
 Aktivní jízdy
 </button>
-<button onclick="showHistory()"
-class="bg-gray-700 px-4 py-2 rounded">
+<button onclick="showHistory()" class="bg-gray-700 px-4 py-2 rounded">
 Historie
 </button>
-
 <input type="month" id="exportMonth"
 class="bg-gray-800 border border-gray-600 px-3 py-2 rounded">
-
-<button onclick="exportMonthly()"
-class="bg-green-600 px-4 py-2 rounded">
+<button onclick="exportMonthly()" class="bg-green-600 px-4 py-2 rounded">
 Exportovat měsíc
 </button>
-
-<button onclick="logout()"
-class="bg-red-500 px-4 py-2 rounded ml-auto">
+<button onclick="logout()" class="bg-red-500 px-4 py-2 rounded ml-auto">
 Odhlásit se
 </button>
 </div>
 
 <div id="ridesList" class="space-y-4"></div>
-
 </div>
 
 <script type="module">
@@ -100,72 +89,65 @@ document.getElementById("loginError").innerText = "Chyba přihlášení";
 }
 };
 
-window.logout = function() { signOut(auth); };
-window.showActive = function() { currentView = "active"; loadRides(); };
-window.showHistory = function() { currentView = "history"; loadRides(); };
+window.logout = () => signOut(auth);
+window.showActive = () => { currentView="active"; loadRides(); };
+window.showHistory = () => { currentView="history"; loadRides(); };
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, user=>{
 if(user){
-document.getElementById("loginSection").classList.add("hidden");
-document.getElementById("adminSection").classList.remove("hidden");
+loginSection.classList.add("hidden");
+adminSection.classList.remove("hidden");
 loadRides();
 loadDashboard();
 }else{
-document.getElementById("loginSection").classList.remove("hidden");
-document.getElementById("adminSection").classList.add("hidden");
+loginSection.classList.remove("hidden");
+adminSection.classList.add("hidden");
 }
 });
 
 /* DASHBOARD */
 
 async function loadDashboard(){
-
 const snapshot = await getDocs(collection(db,"receipts"));
-
-let todayTotal = 0;
-let monthTotal = 0;
-
-const now = new Date();
-const todayStr = now.toDateString();
+let todayTotal=0, monthTotal=0;
+const now=new Date();
 
 snapshot.forEach(docSnap=>{
-const data = docSnap.data();
-const date = new Date(data.date.seconds * 1000);
+const data=docSnap.data();
+const date=new Date(data.date.seconds*1000);
 
-if(date.toDateString() === todayStr){
-todayTotal += data.price;
-}
+if(date.toDateString()===now.toDateString())
+todayTotal+=data.price;
 
-if(date.getMonth() === now.getMonth() &&
-   date.getFullYear() === now.getFullYear()){
-monthTotal += data.price;
-}
+if(date.getMonth()===now.getMonth() &&
+date.getFullYear()===now.getFullYear())
+monthTotal+=data.price;
 });
 
-document.getElementById("todayTotal").innerText = todayTotal + " Kč";
-document.getElementById("monthTotal").innerText = monthTotal + " Kč";
+todayTotalEl.innerText=todayTotal+" Kč";
+monthTotalEl.innerText=monthTotal+" Kč";
 }
 
 /* RECEIPT */
 
-async function generateReceiptNumber() {
-const year = new Date().getFullYear();
-const counterRef = doc(db, "counters", "receipts_" + year);
+async function generateReceiptNumber(){
+const year=new Date().getFullYear();
+const counterRef=doc(db,"counters","receipts_"+year);
 
-return await runTransaction(db, async (transaction) => {
-const counterDoc = await transaction.get(counterRef);
-let newNumber = 1;
-if(counterDoc.exists()){
-newNumber = counterDoc.data().lastNumber + 1;
-}
-transaction.set(counterRef, { lastNumber: newNumber }, { merge: true });
+return await runTransaction(db,async(transaction)=>{
+const counterDoc=await transaction.get(counterRef);
+let newNumber=1;
+if(counterDoc.exists())
+newNumber=counterDoc.data().lastNumber+1;
+
+transaction.set(counterRef,{lastNumber:newNumber},{merge:true});
 return `${year}-${String(newNumber).padStart(4,"0")}`;
 });
 }
 
 async function completeRide(ride){
-const receiptNumber = await generateReceiptNumber();
-const receiptDate = new Date();
+const receiptNumber=await generateReceiptNumber();
+const receiptDate=new Date();
 
 await updateDoc(doc(db,"rides",ride.id),{
 status:"completed",
@@ -175,29 +157,27 @@ receiptDate
 
 await addDoc(collection(db,"receipts"),{
 receiptNumber,
-date: receiptDate,
-pickup: ride.pickup,
-destination: ride.destination,
-distance: ride.distance,
-price: ride.estimatedPrice,
-phone: ride.phone
+date:receiptDate,
+pickup:ride.pickup,
+destination:ride.destination,
+distance:ride.distance,
+price:ride.estimatedPrice,
+phone:ride.phone
 });
 
-alert("Účtenka vytvořena: " + receiptNumber);
+alert("Účtenka vytvořena: "+receiptNumber);
 loadDashboard();
 }
 
 /* LOAD RIDES */
 
-function loadRides() {
-onSnapshot(collection(db,"rides"), snapshot => {
+function loadRides(){
+onSnapshot(collection(db,"rides"),snapshot=>{
 
-const ridesList = document.getElementById("ridesList");
-ridesList.innerHTML = "";
+ridesList.innerHTML="";
 
-snapshot.forEach(docSnap => {
-
-const ride = { id: docSnap.id, ...docSnap.data() };
+snapshot.forEach(docSnap=>{
+const ride={id:docSnap.id,...docSnap.data()};
 
 if(currentView==="active" &&
 (ride.status==="completed"||ride.status==="rejected"||ride.status==="cancelled")) return;
@@ -212,53 +192,77 @@ rideDiv.innerHTML=`
 <p><strong>Odkud:</strong> ${ride.pickup}</p>
 <p><strong>Kam:</strong> ${ride.destination}</p>
 <p><strong>Status:</strong> ${ride.status}</p>
-${ride.receiptNumber ? `<p class="text-green-400 mt-2"><strong>Účtenka:</strong> ${ride.receiptNumber}</p>`:""}
+${ride.receiptNumber?`<p class="text-green-400 mt-2"><strong>Účtenka:</strong> ${ride.receiptNumber}</p>`:""}
 `;
 
-/* 🔥 CONFIRMED */
+/* NEW */
+
+if(currentView==="active" && ride.status==="new"){
+
+const etaInput=document.createElement("input");
+etaInput.type="number";
+etaInput.placeholder="Minuty";
+etaInput.className="mt-3 p-2 w-20 text-black rounded mr-2";
+
+const confirmBtn=document.createElement("button");
+confirmBtn.innerText="Potvrdit";
+confirmBtn.className="mt-3 bg-green-600 px-4 py-2 rounded mr-2";
+confirmBtn.onclick=()=>{
+updateDoc(doc(db,"rides",ride.id),{
+status:"confirmed",
+eta:parseInt(etaInput.value)||5
+});
+};
+
+const rejectBtn=document.createElement("button");
+rejectBtn.innerText="Odmítnout";
+rejectBtn.className="mt-3 bg-red-600 px-4 py-2 rounded";
+rejectBtn.onclick=()=>{
+updateDoc(doc(db,"rides",ride.id),{
+status:"rejected"
+});
+};
+
+rideDiv.appendChild(etaInput);
+rideDiv.appendChild(confirmBtn);
+rideDiv.appendChild(rejectBtn);
+}
+
+/* CONFIRMED */
 
 if(currentView==="active" && ride.status==="confirmed"){
 
 const arrivedBtn=document.createElement("button");
 arrivedBtn.innerText="Řidič přijel";
 arrivedBtn.className="mt-3 bg-blue-600 px-4 py-2 rounded mr-2";
-
 arrivedBtn.onclick=()=>{
-updateDoc(doc(db,"rides",ride.id),{
-status:"arrived"
-});
+updateDoc(doc(db,"rides",ride.id),{status:"arrived"});
 };
 
 const finishBtn=document.createElement("button");
 finishBtn.innerText="Dokončit";
 finishBtn.className="mt-3 bg-green-600 px-4 py-2 rounded";
-
 finishBtn.onclick=()=>completeRide(ride);
 
 rideDiv.appendChild(arrivedBtn);
 rideDiv.appendChild(finishBtn);
 }
 
-/* 🔥 ARRIVED */
+/* ARRIVED */
 
 if(currentView==="active" && ride.status==="arrived"){
-
 const finishBtn=document.createElement("button");
 finishBtn.innerText="Dokončit";
 finishBtn.className="mt-3 bg-green-600 px-4 py-2 rounded";
-
 finishBtn.onclick=()=>completeRide(ride);
-
 rideDiv.appendChild(finishBtn);
 }
 
 ridesList.appendChild(rideDiv);
-
 });
 });
 }
 
 </script>
-
 </body>
 </html>
