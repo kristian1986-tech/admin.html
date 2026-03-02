@@ -11,7 +11,6 @@
 
 <h1 class="text-2xl font-bold mb-6">Admin Panel - Taxi Plzeň</h1>
 
-<!-- LOGIN -->
 <div id="loginSection" class="max-w-md space-y-4">
 <input id="email" type="email" placeholder="Email"
 class="w-full p-3 rounded bg-gray-800 border border-gray-700">
@@ -24,7 +23,6 @@ Přihlásit se
 <p id="loginError" class="text-red-400"></p>
 </div>
 
-<!-- ADMIN -->
 <div id="adminSection" class="hidden">
 
 <div class="flex gap-4 mb-6">
@@ -71,7 +69,6 @@ const ridesList = document.getElementById("ridesList");
 
 let currentView = "active";
 
-// 🔔 Alarmă
 const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
 notificationSound.volume = 1.0;
 let alarmTimeout = null;
@@ -140,12 +137,34 @@ playLongAlarm();
 
 ridesList.innerHTML = "";
 
+// 🔥 transformăm snapshot în array
+let ridesArray = [];
+
 snapshot.forEach(docSnap => {
+ridesArray.push({
+id: docSnap.id,
+...docSnap.data()
+});
+});
 
-const ride = docSnap.data();
-const rideId = docSnap.id;
+// 🔥 SORTARE
+ridesArray.sort((a, b) => {
 
-// 🔥 FILTRARE CORECTĂ
+if(currentView === "active") {
+const priority = { new: 1, confirmed: 2 };
+if(priority[a.status] !== priority[b.status]) {
+return (priority[a.status] || 99) - (priority[b.status] || 99);
+}
+}
+
+// cele mai noi primele
+return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+
+});
+
+// 🔥 AFIȘARE
+ridesArray.forEach(ride => {
+
 if(currentView === "active" && 
    (ride.status === "completed" || ride.status === "rejected")) return;
 
@@ -189,7 +208,7 @@ confirmBtn.className = "mt-2 bg-green-500 px-3 py-1 rounded mr-2";
 confirmBtn.onclick = () => {
 stopAlarm();
 const etaValue = parseInt(etaInput.value) || 5;
-updateDoc(doc(db, "rides", rideId), { 
+updateDoc(doc(db, "rides", ride.id), { 
 status: "confirmed",
 eta: etaValue
 });
@@ -200,7 +219,7 @@ rejectBtn.innerText = "Odmítnout";
 rejectBtn.className = "mt-2 bg-red-600 px-3 py-1 rounded";
 rejectBtn.onclick = () => {
 stopAlarm();
-updateDoc(doc(db, "rides", rideId), { status: "rejected" });
+updateDoc(doc(db, "rides", ride.id), { status: "rejected" });
 };
 
 rideDiv.appendChild(etaInput);
@@ -212,7 +231,7 @@ if (ride.status === "confirmed") {
 const finishBtn = document.createElement("button");
 finishBtn.innerText = "Dokončit";
 finishBtn.className = "mt-2 bg-gray-900 px-3 py-1 rounded";
-finishBtn.onclick = () => updateDoc(doc(db, "rides", rideId), { status: "completed" });
+finishBtn.onclick = () => updateDoc(doc(db, "rides", ride.id), { status: "completed" });
 rideDiv.appendChild(finishBtn);
 }
 
