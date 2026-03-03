@@ -283,6 +283,14 @@ rideDiv.innerHTML=`
 <p><strong>Kam:</strong> ${ride.destination}</p>
 <p><strong>Telefon:</strong> ${ride.phone || "-"}</p>
 <p><strong>Status:</strong> ${ride.status}</p>
+
+${ride.status==="completed" && ride.receiptDate ? `
+<p class="text-gray-300">
+<strong>Dokončeno:</strong> 
+${new Date(ride.receiptDate.seconds * 1000).toLocaleString("cs-CZ")}
+</p>
+` : ""}
+
 ${ride.eta ? `<p><strong>ETA:</strong> ${ride.eta} min</p>` : ""}
 `;
 
