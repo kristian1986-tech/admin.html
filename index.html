@@ -63,7 +63,7 @@ Odhlásit se
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc, runTransaction, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, runTransaction, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -262,7 +262,12 @@ a.click();
 };
 
 function loadRides(){
-onSnapshot(collection(db,"rides"),snapshot=>{
+const ridesQuery = query(
+  collection(db,"rides"),
+  orderBy("createdAt","desc")
+);
+
+onSnapshot(ridesQuery, snapshot=>{
 
 ridesList.innerHTML="";
 
