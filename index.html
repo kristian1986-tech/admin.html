@@ -40,6 +40,10 @@ animation: priceZoom 0.6s ease-out;
 
 <body class="bg-gray-900 text-white min-h-screen p-6">
 
+<audio id="rideSound" loop>
+<source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
+</audio>
+  
 <h1 class="text-2xl font-bold mb-6">Admin Panel - Taxi Plzeň</h1>
 
 <div id="loginSection" class="max-w-md space-y-4">
@@ -115,7 +119,7 @@ appId: "1:872925880546:web:12da74898c90a0155b7ebb"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-
+const rideSound = document.getElementById("rideSound");
 let currentView = "active";
 
 /* LOGIN */
@@ -346,6 +350,9 @@ rideDiv.appendChild(receiptBtn);
 
 /* NEW */
 if(currentView==="active" && ride.status==="new"){
+
+  rideSound.play().catch(()=>{});
+  
 const etaInput=document.createElement("input");
 etaInput.type="number";
 etaInput.placeholder="Minuty";
@@ -355,6 +362,9 @@ const confirmBtn=document.createElement("button");
 confirmBtn.innerText="Potvrdit";
 confirmBtn.className="mt-3 bg-green-600 px-4 py-2 rounded mr-2";
 confirmBtn.onclick=()=>{
+rideSound.pause();
+rideSound.currentTime = 0;
+
 updateDoc(doc(db,"rides",ride.id),{
 status:"confirmed",
 eta:parseInt(etaInput.value)||5
@@ -365,6 +375,9 @@ const rejectBtn=document.createElement("button");
 rejectBtn.innerText="Odmítnout";
 rejectBtn.className="mt-3 bg-red-600 px-4 py-2 rounded";
 rejectBtn.onclick=()=>{
+rideSound.pause();
+rideSound.currentTime = 0;
+
 updateDoc(doc(db,"rides",ride.id),{status:"rejected"});
 };
 
