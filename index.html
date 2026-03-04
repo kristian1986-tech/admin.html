@@ -8,7 +8,34 @@
 
 <!-- 🔥 ADAUGAT: jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+<style>
 
+@keyframes priceZoom {
+0%{
+transform: scale(0.4);
+opacity:0;
+text-shadow:0 0 0px #00ff88;
+}
+
+60%{
+transform: scale(1.15);
+opacity:1;
+text-shadow:0 0 35px #00ff88;
+}
+
+100%{
+transform: scale(1);
+text-shadow:0 0 20px #00ff88;
+}
+}
+
+.price-zoom{
+animation: priceZoom 0.6s ease-out;
+}
+
+</style>
+  
 </head>
 
 <body class="bg-gray-900 text-white min-h-screen p-6">
@@ -395,6 +422,10 @@ ridesList.appendChild(rideDiv);
 
 const popup = document.getElementById("pricePopup");
 const text = document.getElementById("priceText");
+
+text.classList.remove("price-zoom");
+void text.offsetWidth; 
+text.classList.add("price-zoom");
 
 text.innerText = price + " Kč";
 
