@@ -340,21 +340,26 @@ rideDiv.appendChild(rejectBtn);
 if(currentView==="active" && ride.status==="confirmed"){
 const arrivedBtn=document.createElement("button");
 arrivedBtn.innerText="Řidič přijel";
-arrivedBtn.className="mt-3 bg-blue-600 px-4 py-2 rounded mr-2";
+arrivedBtn.className="mt-3 bg-blue-600 px-4 py-2 rounded";
 arrivedBtn.onclick=()=>{
 updateDoc(doc(db,"rides",ride.id),{status:"arrived"});
 };
 
-const finishBtn=document.createElement("button");
-finishBtn.innerText="Dokončit";
-finishBtn.className="mt-3 bg-green-600 px-4 py-2 rounded";
-finishBtn.onclick=()=>completeRide(ride);
-
 rideDiv.appendChild(arrivedBtn);
-rideDiv.appendChild(finishBtn);
 }
 
 if(currentView==="active" && ride.status==="arrived"){
+const startBtn=document.createElement("button");
+startBtn.innerText="Zahájit jízdu";
+startBtn.className="mt-3 bg-yellow-500 text-black px-4 py-2 rounded mr-2";
+startBtn.onclick=()=>{
+updateDoc(doc(db,"rides",ride.id),{status:"in_progress"});
+};
+
+rideDiv.appendChild(startBtn);
+}
+
+if(currentView==="active" && ride.status==="in_progress"){
 const finishBtn=document.createElement("button");
 finishBtn.innerText="Dokončit";
 finishBtn.className="mt-3 bg-green-600 px-4 py-2 rounded";
