@@ -466,6 +466,19 @@ popup.classList.add("hidden");
 
   }
   
+function startDriverGPS(rideId){
+
+navigator.geolocation.watchPosition((pos)=>{
+
+updateDoc(doc(db,"rides",rideId),{
+driverLat: pos.coords.latitude,
+driverLng: pos.coords.longitude
+});
+
+});
+
+}  
+  
 </script>
 </body>
 </html>
