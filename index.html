@@ -584,7 +584,9 @@ snap.forEach(docSnap=>{
 
 const ride = docSnap.data();
 
-if(ride.driverId !== driverId) return;
+const selectedName = document.getElementById("driverStatsSelect").selectedOptions[0].text;
+
+if(ride.driverName !== selectedName) return;
 if(ride.status !== "completed") return;
 if(!ride.receiptDate) return;
 
