@@ -588,7 +588,9 @@ const selectedName = document.getElementById("driverStatsSelect").selectedOption
 
 if(ride.driverName !== selectedName) return;
 if(ride.status !== "completed") return;
-if(!ride.receiptDate) return;
+const date = ride.receiptDate 
+  ? new Date(ride.receiptDate.seconds * 1000)
+  : new Date(ride.createdAt?.seconds * 1000);
 
 const date = new Date(ride.receiptDate.seconds * 1000);
 const price = ride.estimatedPrice || 0;
