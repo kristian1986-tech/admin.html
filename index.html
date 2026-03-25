@@ -616,6 +616,222 @@ panel.classList.add("hidden");
 }
 
 }
+
+window.exportMonthly = async function(){
+
+const driverId = driverFilter.value;
+const monthValue = document.getElementById("exportMonth").value;
+
+if(driverId === "all"){
+alert("Vyberte řidiče");
+return;
+}
+
+if(!monthValue){
+alert("Vyberte měsíc");
+return;
+}
+
+const [year,month] = monthValue.split("-");
+const snap = await getDocs(collection(db,"rides"));
+
+const { jsPDF } = window.jspdf;
+const pdf = new jsPDF();
+
+let y = 20;
+let total = 0;
+
+let driverName = "-";
+let driverIco = "-";
+
+// 🔥 luăm date șofer
+snap.forEach(doc=>{
+const d = doc.data();
+if(d.driverId === driverId){
+if(d.driverName) driverName = d.driverName;
+if(d.driverIco) driverIco = d.driverIco;
+}
+});
+
+// HEADER
+pdf.setFontSize(18);
+pdf.text("COBRA",105,y,{align:"center"});
+y += 6;
+
+pdf.setFontSize(10);
+pdf.text("preprava osob Plzen",105,y,{align:"center"});
+y += 6;
+
+pdf.text("Prehled jizd - mesic",105,y,{align:"center"});
+y += 10;
+
+// DRIVER
+pdf.text("Jméno: " + driverName,20,y);
+y += 6;
+pdf.text("IČO: " + driverIco,20,y);
+y += 10;
+
+// TABLE HEADER
+pdf.setFontSize(11);
+pdf.text("Datum",20,y);
+pdf.text("Odkud",55,y);
+pdf.text("Kam",120,y);
+pdf.text("Cena",180,y,{align:"right"});
+y += 4;
+
+pdf.line(20,y,190,y);
+y += 6;
+
+// DATA
+snap.forEach(docSnap=>{
+
+const ride = docSnap.data();
+
+if(ride.driverId !== driverId) return;
+if(ride.status !== "completed") return;
+
+let date;
+if(ride.receiptDate){
+date = new Date(ride.receiptDate.seconds * 1000);
+}else if(ride.createdAt){
+date = new Date(ride.createdAt.seconds * 1000);
+}else return;
+
+if(date.getFullYear()!=year || (date.getMonth()+1)!=parseInt(month)) return;
+
+const price = Number(ride.estimatedPrice) || 0;
+total += price;
+
+pdf.text(date.toLocaleDateString("cs-CZ"),20,y);
+pdf.text((ride.pickup||"").slice(0,25),55,y);
+pdf.text((ride.destination||"").slice(0,25),120,y);
+pdf.text(price + " Kč",180,y,{align:"right"});
+
+y += 6;
+
+if(y > 270){
+pdf.addPage();
+y = 20;
+}
+
+});
+
+// TOTAL
+y += 5;
+pdf.line(20,y,190,y);
+y += 8;
+
+pdf.setFontSize(12);
+pdf.text("CELKEM: " + total + " Kč",180,y,{align:"right"});
+
+pdf.save("mesic_" + driverName + ".pdf");
+
+};
+
+
+window.exportYear = async function(){
+
+const driverId = driverFilter.value;
+
+if(driverId === "all"){
+alert("Vyberte řidiče");
+return;
+}
+
+const snap = await getDocs(collection(db,"rides"));
+
+const { jsPDF } = window.jspdf;
+const pdf = new jsPDF();
+
+let y = 20;
+let total = 0;
+
+let driverName = "-";
+let driverIco = "-";
+
+snap.forEach(doc=>{
+const d = doc.data();
+if(d.driverId === driverId){
+if(d.driverName) driverName = d.driverName;
+if(d.driverIco) driverIco = d.driverIco;
+}
+});
+
+const year = new Date().getFullYear();
+
+// HEADER
+pdf.setFontSize(18);
+pdf.text("COBRA",105,y,{align:"center"});
+y += 6;
+
+pdf.setFontSize(10);
+pdf.text("preprava osob Plzen",105,y,{align:"center"});
+y += 6;
+
+pdf.text("Prehled jizd - rok",105,y,{align:"center"});
+y += 10;
+
+// DRIVER
+pdf.text("Jméno: " + driverName,20,y);
+y += 6;
+pdf.text("IČO: " + driverIco,20,y);
+y += 10;
+
+// TABLE HEADER
+pdf.text("Datum",20,y);
+pdf.text("Odkud",55,y);
+pdf.text("Kam",120,y);
+pdf.text("Cena",180,y,{align:"right"});
+y += 4;
+
+pdf.line(20,y,190,y);
+y += 6;
+
+// DATA
+snap.forEach(docSnap=>{
+
+const ride = docSnap.data();
+
+if(ride.driverId !== driverId) return;
+if(ride.status !== "completed") return;
+
+let date;
+if(ride.receiptDate){
+date = new Date(ride.receiptDate.seconds * 1000);
+}else if(ride.createdAt){
+date = new Date(ride.createdAt.seconds * 1000);
+}else return;
+
+if(date.getFullYear() !== year) return;
+
+const price = Number(ride.estimatedPrice) || 0;
+total += price;
+
+pdf.text(date.toLocaleDateString("cs-CZ"),20,y);
+pdf.text((ride.pickup||"").slice(0,25),55,y);
+pdf.text((ride.destination||"").slice(0,25),120,y);
+pdf.text(price + " Kč",180,y,{align:"right"});
+
+y += 6;
+
+if(y > 270){
+pdf.addPage();
+y = 20;
+}
+
+});
+
+// TOTAL
+y += 5;
+pdf.line(20,y,190,y);
+y += 8;
+
+pdf.text("CELKEM: " + total + " Kč",180,y,{align:"right"});
+
+pdf.save("rok_" + driverName + ".pdf");
+
+};
+  
   
 </script>
 
@@ -664,6 +880,20 @@ Zavřít
 
 </div>
 </div>
+
+<button onclick="exportMonthly()" 
+class="fixed bottom-20 right-6 px-5 py-3 
+bg-gradient-to-r from-green-500 to-green-700 
+rounded-full shadow-2xl text-sm font-bold z-50">
+📄 Měsíc
+</button>
+
+<button onclick="exportYear()" 
+class="fixed bottom-6 right-6 px-5 py-3 
+bg-gradient-to-r from-blue-500 to-blue-700 
+rounded-full shadow-2xl text-sm font-bold z-50">
+📊 Rok
+</button>
   
 </body>
 </html>
