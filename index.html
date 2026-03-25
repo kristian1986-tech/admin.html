@@ -61,6 +61,28 @@ Přihlásit se
 <div id="adminSection" class="hidden">
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+  
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+  <div class="bg-gray-800 p-4 rounded">
+    <p class="text-gray-400">👤 Řidič - dnes</p>
+    <p id="driverToday" class="text-xl font-bold text-green-400">0 Kč</p>
+  </div>
+
+  <div class="bg-gray-800 p-4 rounded">
+    <p class="text-gray-400">📅 Řidič - měsíc</p>
+    <p id="driverMonth" class="text-xl font-bold text-yellow-400">0 Kč</p>
+  </div>
+
+  <div class="bg-gray-800 p-4 rounded">
+    <p class="text-gray-400">🗓️ Řidič - rok</p>
+    <p id="driverYear" class="text-xl font-bold text-blue-400">0 Kč</p>
+  </div>
+
+</div>
+
+
 <div class="bg-gray-800 p-4 rounded">
 <p class="text-gray-400">💰 Dnes</p>
 <p id="todayTotal" class="text-2xl font-bold text-green-400">0 Kč</p>
@@ -128,6 +150,7 @@ const driverFilter = document.getElementById("driverFilter");
 
  driverFilter.addEventListener("change", ()=>{
   loadRides();
+  loadDriverStats();
 });
   
 async function loadDrivers(){
@@ -190,6 +213,7 @@ adminSection.classList.remove("hidden");
 loadRides();
 loadDashboard();
 loadDrivers();
+loadDriverStats();
 }else{
 loginSection.classList.remove("hidden");
 adminSection.classList.add("hidden");
@@ -202,6 +226,62 @@ async function loadDashboard(){
 const snapshot = await getDocs(collection(db,"receipts"));
 let todayTotal=0, monthTotal=0;
 const now=new Date();
+
+async function loadDriverStats(){
+
+  const selectedDriver = driverFilter.value;
+
+  if(selectedDriver === "all"){
+    document.getElementById("driverToday").innerText = "-";
+    document.getElementById("driverMonth").innerText = "-";
+    document.getElementById("driverYear").innerText = "-";
+    return;
+  }
+
+  const snap = await getDocs(collection(db,"rides"));
+
+  let today = 0;
+  let month = 0;
+  let year = 0;
+
+  const now = new Date();
+
+  snap.forEach(docSnap => {
+
+    const ride = docSnap.data();
+
+    if(ride.driverId !== selectedDriver) return;
+    if(ride.status !== "completed") return;
+
+    if(!ride.receiptDate) return;
+
+    const date = new Date(ride.receiptDate.seconds * 1000);
+    const price = ride.estimatedPrice || 0;
+
+    // TODAY
+    if(date.toDateString() === now.toDateString()){
+      today += price;
+    }
+
+    // MONTH
+    if(date.getMonth() === now.getMonth() &&
+       date.getFullYear() === now.getFullYear()){
+      month += price;
+    }
+
+    // YEAR
+    if(date.getFullYear() === now.getFullYear()){
+      year += price;
+    }
+
+  });
+
+  document.getElementById("driverToday").innerText = today + " Kč";
+  document.getElementById("driverMonth").innerText = month + " Kč";
+  document.getElementById("driverYear").innerText = year + " Kč";
+
+}
+
 
 snapshot.forEach(docSnap=>{
 const data=docSnap.data();
