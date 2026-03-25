@@ -672,9 +672,9 @@ pdf.text("Prehled jizd - mesic",105,y,{align:"center"});
 y += 10;
 
 // DRIVER
-pdf.text("Jméno: " + driverName,20,y);
+pdf.text("Jméno ridic: " + driverName,20,y);
 y += 6;
-pdf.text("IČO: " + driverIco,20,y);
+pdf.text(ICO: " + driverIco,20,y);
 y += 10;
 
 // TABLE HEADER
@@ -714,7 +714,7 @@ const destLines = pdf.splitTextToSize(fixText(ride.destination || ""), 60);
 
 pdf.text(pickupLines,55,y);
 pdf.text(destLines,120,y);
-pdf.text(price + " Kč",180,y,{align:"right"});
+pdf.text(price + " Kc",180,y,{align:"right"});
 
   
 const lines = Math.max(pickupLines.length, destLines.length);
@@ -733,7 +733,7 @@ pdf.line(20,y,190,y);
 y += 8;
 
 pdf.setFontSize(12);
-pdf.text("CELKEM: " + total + " Kč",180,y,{align:"right"});
+pdf.text("CELKEM: " + total + " Kc",180,y,{align:"right"});
 
 pdf.save("mesic_" + driverName + ".pdf");
 
@@ -783,9 +783,9 @@ pdf.text("Prehled jizd - rok",105,y,{align:"center"});
 y += 10;
 
 // DRIVER
-pdf.text("Jméno: " + driverName,20,y);
+pdf.text("Jméno ridic: " + driverName,20,y);
 y += 6;
-pdf.text("IČO: " + driverIco,20,y);
+pdf.text("ICO: " + driverIco,20,y);
 y += 10;
 
 // TABLE HEADER
@@ -821,7 +821,7 @@ total += price;
 pdf.text(date.toLocaleDateString("cs-CZ"),20,y);
 pdf.text((ride.pickup||"").slice(0,25),55,y);
 pdf.text((ride.destination||"").slice(0,25),120,y);
-pdf.text(price + " Kč",180,y,{align:"right"});
+pdf.text(price + " Kc",180,y,{align:"right"});
 
 y += 6;
 
@@ -837,7 +837,7 @@ y += 5;
 pdf.line(20,y,190,y);
 y += 8;
 
-pdf.text("CELKEM: " + total + " Kč",180,y,{align:"right"});
+pdf.text("CELKEM: " + total + " Kc",180,y,{align:"right"});
 
 pdf.save("rok_" + driverName + ".pdf");
 
