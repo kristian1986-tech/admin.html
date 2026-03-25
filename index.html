@@ -538,8 +538,14 @@ if(!driverName) return;
 const snap = await getDocs(collection(db,"rides"));
 
 let today=0, month=0, year=0;
+  
+let todayCount = 0;
+let monthCount = 0;
+let yearCount = 0;
+  
 const now = new Date();
 
+  
 snap.forEach(docSnap=>{
 
 const ride = docSnap.data();
@@ -565,25 +571,33 @@ const price = ride.estimatedPrice || 0;
 // TODAY
 if(date.toDateString() === now.toDateString()){
 today += price;
+todayCount++;  
 }
 
 // MONTH
 if(date.getMonth() === now.getMonth() &&
    date.getFullYear() === now.getFullYear()){
 month += price;
+monthCount++;
 }
 
 // YEAR
 if(date.getFullYear() === now.getFullYear()){
 year += price;
+yearCount++;
 }
 
 });
 
-document.getElementById("driverToday").innerText = today + " Kč";
-document.getElementById("driverMonth").innerText = month + " Kč";
-document.getElementById("driverYear").innerText = year + " Kč";
+document.getElementById("driverToday").innerText =
+  today + " Kč (" + todayCount + " jízd)";
 
+document.getElementById("driverMonth").innerText =
+  month + " Kč (" + monthCount + " jízd)";
+
+document.getElementById("driverYear").innerText =
+  year + " Kč (" + yearCount + " jízd)";
+  
 });
   
 
