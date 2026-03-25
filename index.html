@@ -385,7 +385,7 @@ rideDiv.className="bg-gray-700 p-4 rounded";
 rideDiv.innerHTML=`
 <p><strong>Odkud:</strong> ${ride.pickup}</p>
 <p><strong>Kam:</strong> ${ride.destination}</p>
-<p><strong>Telefon:</strong> ${ride.phone || "-"}</p>
+<p><strong>Řidič:</strong> ${ride.driverName || "-"}</p>
 <p><strong>Status:</strong> ${ride.status}</p>
 
 ${ride.status==="completed" && ride.receiptDate ? `
