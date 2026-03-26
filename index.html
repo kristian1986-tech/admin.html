@@ -107,6 +107,7 @@ class="bg-purple-600 px-4 py-2 rounded w-full">
 </button>
 
 <button onclick="showArchive()"
+id="archiveBtn"
 class="bg-purple-800 px-4 py-2 rounded w-full">
 📂 Archiv
 </button>
@@ -230,12 +231,27 @@ console.log("Driver token:",token);
 const rideSound = document.getElementById("rideSound");
 let currentView = "active";
 let selectedYear = new Date().getFullYear();
-window.showArchive = () => {
-  currentView = "archive";
-  loadRides();
-};
 
   
+  
+  window.showArchive = () => {
+
+  const btn = document.getElementById("archiveBtn");
+
+  if(currentView === "archive"){
+    currentView = "active";
+    btn.classList.remove("bg-green-600");
+    btn.classList.add("bg-purple-800");
+  }else{
+    currentView = "archive";
+    btn.classList.remove("bg-purple-800");
+    btn.classList.add("bg-green-600");
+  }
+
+  loadRides();
+};
+  
+
   
 /* LOGIN */
 
