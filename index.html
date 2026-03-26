@@ -905,35 +905,46 @@ pdf.save("rok_" + driverName + ".pdf");
 };
 
 
+let selectedYearTemp = parseInt(document.getElementById("yearButton").innerText);
+
 window.openYearPicker = function(){
 
   const list = document.getElementById("yearList");
   list.innerHTML = "";
 
-  const currentYear = new Date().getFullYear();
+  const start = 2000;
+  const end = 2200;
 
-  for(let i = currentYear + 2; i >= 2015; i--){
+  for(let i = end; i >= start; i--){
 
     const div = document.createElement("div");
-    div.className = "py-3 bg-gray-800 rounded cursor-pointer hover:bg-gray-700";
+    div.className = "h-12 flex items-center justify-center snap-center";
 
     div.innerText = i;
-
-    div.onclick = ()=>{
-      document.getElementById("yearButton").innerText = i;
-      document.getElementById("yearPicker").classList.add("hidden");
-    };
 
     list.appendChild(div);
   }
 
+  // scroll la anul curent
+  setTimeout(()=>{
+    const index = end - selectedYearTemp;
+    list.scrollTop = index * 48;
+  },100);
+
+  // detect scroll
+  list.onscroll = ()=>{
+    const index = Math.round(list.scrollTop / 48);
+    selectedYearTemp = end - index;
+  }
+
   document.getElementById("yearPicker").classList.remove("hidden");
 }
+  
 
-window.closeYearPicker = function(){
+window.confirmYear = function(){
+  document.getElementById("yearButton").innerText = selectedYearTemp;
   document.getElementById("yearPicker").classList.add("hidden");
 }
-  
   
 </script>
 
@@ -1016,11 +1027,11 @@ class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
 
 </div>
     
-    <button onclick="closeYearPicker()"
-    class="mt-4 w-full bg-gray-700 py-2 rounded">
-    Zavřít
+    <button onclick="confirmYear()"
+class="mt-4 w-full bg-green-600 py-2 rounded">
+OK
     </button>
-
+    
   </div>
 </div>
   
