@@ -99,10 +99,21 @@ class="w-full md:w-40 p-3 rounded-xl bg-gray-800 border border-gray-600 mt-2">
 2026
 </button>
 
+<div class="flex gap-2 mt-2">
+
 <button onclick="archiveYear()"
-class="bg-purple-600 px-4 py-2 rounded mt-2">
+class="bg-purple-600 px-4 py-2 rounded w-full">
 📦 Archivovat rok
-</button>  
+</button>
+
+<button onclick="showArchive()"
+class="bg-purple-800 px-4 py-2 rounded w-full">
+📂 Archiv
+</button>
+
+</div>
+ 
+  
 <div id="ridesList" class="space-y-4"></div>
 </div>
 
@@ -219,7 +230,12 @@ console.log("Driver token:",token);
 const rideSound = document.getElementById("rideSound");
 let currentView = "active";
 let selectedYear = new Date().getFullYear();
+window.showArchive = () => {
+  currentView = "archive";
+  loadRides();
+};
 
+  
   
 /* LOGIN */
 
@@ -420,8 +436,12 @@ snapshot.forEach(docSnap=>{
   
 const ride={id:docSnap.id,...docSnap.data()};
 
-  // 🔥 ASCUNDE ARHIVATE
-if(ride.archived) return;
+// 🔥 CONTROL ARHIVĂ
+if(currentView === "archive"){
+  if(!ride.archived) return;
+}else{
+  if(ride.archived) return;
+}
   
 // 🔥 FILTRU ȘOFER
 if(selectedDriver !== "all" && ride.driverId !== selectedDriver){
