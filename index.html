@@ -809,11 +809,15 @@ const price = Number(ride.estimatedPrice) || 0;
 total += price;
 
 pdf.text(date.toLocaleDateString("cs-CZ"),20,y);
-pdf.text((ride.pickup||"").slice(0,25),55,y);
-pdf.text((ride.destination||"").slice(0,25),120,y);
+const pickupLines = pdf.splitTextToSize(fixText(ride.pickup || ""), 60);
+const destLines = pdf.splitTextToSize(fixText(ride.destination || ""), 60);
+
+pdf.text(pickupLines,55,y);
+pdf.text(destLines,120,y);
 pdf.text(price + " Kc",180,y,{align:"right"});
 
-y += 6;
+const lines = Math.max(pickupLines.length, destLines.length);
+y += lines * 6;
 
 if(y > 270){
 pdf.addPage();
