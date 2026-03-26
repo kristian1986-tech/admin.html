@@ -333,37 +333,6 @@ alert("Účtenka vytvořena: "+receiptNumber);
 loadDashboard();
 }
 
-window.exportMonthly = async function(){
-
-const monthValue = document.getElementById("exportMonth").value;
-if(!monthValue){
-alert("Vyberte měsíc.");
-return;
-}
-
-const [year,month] = monthValue.split("-");
-const snapshot = await getDocs(collection(db,"receipts"));
-
-let csv = "Číslo;Datum;Odkud;Kam;Cena;Telefon\n";
-
-snapshot.forEach(docSnap=>{
-const data = docSnap.data();
-if(!data.date) return;
-
-const date = new Date(data.date.seconds*1000);
-
-if(date.getFullYear()==year && (date.getMonth()+1)==parseInt(month)){
-csv += `${data.receiptNumber};${date.toLocaleDateString()};${data.pickup};${data.destination};${data.price};${data.phone}\n`;
-}
-});
-
-const blob = new Blob([csv],{type:"text/csv"});
-const url = URL.createObjectURL(blob);
-const a = document.createElement("a");
-a.href = url;
-a.download = `export_${monthValue}.csv`;
-a.click();
-};
 
 function loadRides(){
 
