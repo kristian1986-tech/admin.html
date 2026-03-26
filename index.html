@@ -93,6 +93,16 @@ class="w-full md:w-64 p-3 rounded-xl bg-gray-800 text-white border border-gray-6
   <option value="all">👤 Všichni řidiči</option>
 </select>
   
+<select id="yearFilter"
+class="w-full md:w-40 p-3 rounded-xl bg-gray-800 text-white border border-gray-600 mt-2">
+  <option value="2026">2026</option>
+  <option value="2025">2025</option>
+</select>
+
+<button onclick="archiveYear()"
+class="bg-purple-600 px-4 py-2 rounded mt-2">
+📦 Archivovat rok
+</button>  
 <div id="ridesList" class="space-y-4"></div>
 </div>
 
