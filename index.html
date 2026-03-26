@@ -935,10 +935,17 @@ window.openYearPicker = function(){
 
   // detect scroll
   list.onscroll = ()=>{
-  const index = Math.floor((list.scrollTop + 24) / 48);
-    selectedYearTemp = end - index;
-  }
 
+  const itemHeight = 48;
+  const containerHeight = 192; // h-48 = 192px
+
+  const centerOffset = (containerHeight / 2) - (itemHeight / 2);
+
+  const index = Math.round((list.scrollTop + centerOffset) / itemHeight);
+
+  selectedYearTemp = end - index;
+  }
+  
   document.getElementById("yearPicker").classList.remove("hidden");
 }
   
