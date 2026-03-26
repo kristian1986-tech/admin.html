@@ -427,7 +427,7 @@ const ridesQuery = query(
   orderBy("createdAt","desc")
 );
 
-onSnapshot(ridesQuery, snapshot=>{
+getDocs(ridesQuery).then(snapshot=>{
 
 ridesList.innerHTML="";
 
