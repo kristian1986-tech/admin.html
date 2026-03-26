@@ -829,7 +829,7 @@ if(d.driverIco) driverIco = d.driverIco;
 }
 });
 
-const year = new Date().getFullYear();
+const year = parseInt(document.getElementById("yearFilter").value);
 
 // HEADER
 pdf.setFontSize(18);
