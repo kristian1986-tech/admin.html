@@ -418,6 +418,9 @@ snapshot.forEach(docSnap=>{
   
 const ride={id:docSnap.id,...docSnap.data()};
 
+  // 🔥 ASCUNDE ARHIVATE
+if(ride.archived) return;
+  
 // 🔥 FILTRU ȘOFER
 if(selectedDriver !== "all" && ride.driverId !== selectedDriver){
   return;
