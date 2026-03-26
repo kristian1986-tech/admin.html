@@ -98,22 +98,6 @@ id="yearButton"
 class="w-full md:w-40 p-3 rounded-xl bg-gray-800 border border-gray-600 mt-2">
 2026
 </button>
-
-<div class="flex gap-2 mt-2">
-
-<button onclick="archiveYear()"
-class="bg-purple-600 px-4 py-2 rounded w-full">
-📦 Archivovat rok
-</button>
-
-<button onclick="showArchive()"
-id="archiveBtn"
-class="bg-purple-800 px-4 py-2 rounded w-full">
-📂 Archiv
-</button>
-
-</div>
- 
   
 <div id="ridesList" class="space-y-4"></div>
 </div>
@@ -156,40 +140,7 @@ const driverFilter = document.getElementById("driverFilter");
 
  driverFilter.addEventListener("change", ()=>{
   loadRides();
-});
-
-  
-window.archiveYear = async function(){
-
-  const selectedDriver = driverFilter.value;
-  const selectedYear = document.getElementById("yearButton").innerText;
-
-  if(selectedDriver === "all"){
-    alert("Vyberte řidiče!");
-    return;
-  }
-
-  const snapshot = await getDocs(collection(db,"rides"));
-
-  snapshot.forEach(async (docSnap)=>{
-
-    const ride = docSnap.data();
-
-    if(
-      ride.driverId === selectedDriver &&
-      ride.createdAt &&
-      new Date(ride.createdAt.seconds * 1000).getFullYear() == selectedYear
-    ){
-      await updateDoc(doc(db,"rides",docSnap.id),{
-        archived: true,
-        archiveYear: parseInt(selectedYear)
-      });
-    }
-
-  });
-
-  alert("Archivace hotová ✅");
-}
+});  
   
   
 async function loadDrivers(){
@@ -232,27 +183,7 @@ const rideSound = document.getElementById("rideSound");
 let currentView = "active";
 let selectedYear = new Date().getFullYear();
 
-  
-  
-  window.showArchive = () => {
-
-  const btn = document.getElementById("archiveBtn");
-
-  if(currentView === "archive"){
-    currentView = "active";
-    btn.classList.remove("bg-green-600");
-    btn.classList.add("bg-purple-800");
-  }else{
-    currentView = "archive";
-    btn.classList.remove("bg-purple-800");
-    btn.classList.add("bg-green-600");
-  }
-
-  loadRides();
-};
-  
-
-  
+ 
 /* LOGIN */
 
 window.login = async function() {
@@ -451,18 +382,6 @@ ridesList.innerHTML="";
 snapshot.forEach(docSnap=>{
   
 const ride={id:docSnap.id,...docSnap.data()};
-
-// 🔥 CONTROL ARHIVĂ
-if(currentView === "archive"){
-  if(!ride.archived) return;
-}else{
-  if(ride.archived) return;
-}
-  
-// 🔥 FILTRU ȘOFER
-if(selectedDriver !== "all" && ride.driverId !== selectedDriver){
-  return;
-}
 
 if(currentView==="active" &&
 (ride.status==="completed"||ride.status==="rejected"||ride.status==="cancelled")) return;
