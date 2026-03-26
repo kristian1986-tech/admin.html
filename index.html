@@ -93,11 +93,11 @@ class="w-full md:w-64 p-3 rounded-xl bg-gray-800 text-white border border-gray-6
   <option value="all">👤 Všichni řidiči</option>
 </select>
   
-<select id="yearFilter"
-class="w-full md:w-40 p-3 rounded-xl bg-gray-800 text-white border border-gray-600 mt-2">
-  <option value="2026">2026</option>
-  <option value="2025">2025</option>
-</select>
+<button onclick="openYearPicker()"
+id="yearButton"
+class="w-full md:w-40 p-3 rounded-xl bg-gray-800 border border-gray-600 mt-2">
+2026
+</button>
 
 <button onclick="archiveYear()"
 class="bg-purple-600 px-4 py-2 rounded mt-2">
@@ -829,7 +829,7 @@ if(d.driverIco) driverIco = d.driverIco;
 }
 });
 
-const year = parseInt(document.getElementById("yearFilter").value);
+const year = parseInt(document.getElementById("yearButton").innerText);
 
 // HEADER
 pdf.setFontSize(18);
@@ -903,6 +903,36 @@ pdf.text("CELKEM: " + total + " Kc",180,y,{align:"right"});
 pdf.save("rok_" + driverName + ".pdf");
 
 };
+
+
+window.openYearPicker = function(){
+
+  const list = document.getElementById("yearList");
+  list.innerHTML = "";
+
+  const currentYear = new Date().getFullYear();
+
+  for(let i = currentYear + 2; i >= 2015; i--){
+
+    const div = document.createElement("div");
+    div.className = "py-3 bg-gray-800 rounded cursor-pointer hover:bg-gray-700";
+
+    div.innerText = i;
+
+    div.onclick = ()=>{
+      document.getElementById("yearButton").innerText = i;
+      document.getElementById("yearPicker").classList.add("hidden");
+    };
+
+    list.appendChild(div);
+  }
+
+  document.getElementById("yearPicker").classList.remove("hidden");
+}
+
+window.closeYearPicker = function(){
+  document.getElementById("yearPicker").classList.add("hidden");
+}
   
   
 </script>
@@ -966,6 +996,25 @@ bg-gradient-to-r from-blue-500 to-blue-700
 rounded-full shadow-2xl text-sm font-bold z-50">
 📊 Rok
 </button>
+
+<div id="yearPicker"
+class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+  <div class="bg-gray-900 p-6 rounded-2xl w-[90%] max-w-sm text-center">
+
+    <h2 class="text-lg font-bold mb-4">Vyber rok</h2>
+
+    <div id="yearList"
+    class="h-40 overflow-y-scroll text-lg space-y-2">
+    </div>
+
+    <button onclick="closeYearPicker()"
+    class="mt-4 w-full bg-gray-700 py-2 rounded">
+    Zavřít
+    </button>
+
+  </div>
+</div>
   
 </body>
 </html>
