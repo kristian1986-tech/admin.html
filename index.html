@@ -935,7 +935,7 @@ window.openYearPicker = function(){
 
   // detect scroll
   list.onscroll = ()=>{
-    const index = Math.round(list.scrollTop / 48);
+  const index = Math.floor((list.scrollTop + 24) / 48);
     selectedYearTemp = end - index;
   }
 
