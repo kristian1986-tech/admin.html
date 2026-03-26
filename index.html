@@ -145,6 +145,40 @@ const driverFilter = document.getElementById("driverFilter");
  driverFilter.addEventListener("change", ()=>{
   loadRides();
 });
+
+  
+window.archiveYear = async function(){
+
+  const selectedDriver = driverFilter.value;
+  const selectedYear = document.getElementById("yearFilter").value;
+
+  if(selectedDriver === "all"){
+    alert("Vyberte řidiče!");
+    return;
+  }
+
+  const snapshot = await getDocs(collection(db,"rides"));
+
+  snapshot.forEach(async (docSnap)=>{
+
+    const ride = docSnap.data();
+
+    if(
+      ride.driverId === selectedDriver &&
+      ride.createdAt &&
+      new Date(ride.createdAt.seconds * 1000).getFullYear() == selectedYear
+    ){
+      await updateDoc(doc(db,"rides",docSnap.id),{
+        archived: true,
+        archiveYear: parseInt(selectedYear)
+      });
+    }
+
+  });
+
+  alert("Archivace hotová ✅");
+}
+  
   
 async function loadDrivers(){
 
