@@ -150,7 +150,7 @@ const driverFilter = document.getElementById("driverFilter");
 window.archiveYear = async function(){
 
   const selectedDriver = driverFilter.value;
-  const selectedYear = document.getElementById("yearFilter").value;
+  const selectedYear = document.getElementById("yearButton").innerText;
 
   if(selectedDriver === "all"){
     alert("Vyberte řidiče!");
