@@ -1004,10 +1004,18 @@ class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
 
     <h2 class="text-lg font-bold mb-4">Vyber rok</h2>
 
-    <div id="yearList"
-    class="h-40 overflow-y-scroll text-lg space-y-2">
-    </div>
 
+<div class="relative h-48 overflow-hidden">
+
+  <div class="absolute top-1/2 left-0 w-full h-12 -translate-y-1/2 
+  border-t border-b border-green-400"></div>
+
+  <div id="yearList"
+  class="h-full overflow-y-scroll snap-y snap-mandatory text-xl">
+  </div>
+
+</div>
+    
     <button onclick="closeYearPicker()"
     class="mt-4 w-full bg-gray-700 py-2 rounded">
     Zavřít
