@@ -1065,6 +1065,10 @@ window.toggleSupportPanel = function(){
 
   if(panel.classList.contains("hidden")){
     panel.classList.remove("hidden");
+
+    // 🔥 PORNEȘTE LISTA
+    listenSupportChats();
+
   }else{
     panel.classList.add("hidden");
   }
@@ -1083,6 +1087,52 @@ setTimeout(()=>{
     });
   }
 },500);
+
+
+function listenSupportChats(){
+
+  const list = document.getElementById("supportList");
+
+  onSnapshot(
+    query(
+      collection(db,"supportChats"),
+      orderBy("updatedAt","desc")
+    ),
+    snapshot=>{
+
+      list.innerHTML = "";
+
+      snapshot.forEach(docSnap=>{
+
+        const chat = docSnap.data();
+        const chatId = docSnap.id;
+
+        const div = document.createElement("div");
+
+        div.className = "bg-gray-700 p-3 rounded-xl cursor-pointer active:scale-95 transition";
+
+        div.innerHTML = `
+          <div class="text-sm font-semibold">
+            📱 ${chat.phone || "Client"}
+          </div>
+          <div class="text-xs text-gray-300">
+            ${chat.lastMessage || "Žádná zpráva"}
+          </div>
+        `;
+
+        // 🔥 CLICK → deschide chat (pasul 3)
+        div.onclick = ()=>{
+          openSupportChat(chatId);
+        };
+
+        list.appendChild(div);
+
+      });
+
+    }
+  );
+}
+
 
   
 </script>
