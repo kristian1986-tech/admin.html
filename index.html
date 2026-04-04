@@ -120,29 +120,35 @@ class="w-full bg-gradient-to-r from-red-500 to-red-600 py-4 rounded-2xl shadow-x
 </button>
 
 
-<div id="supportPanel" class="hidden mt-4 bg-gray-800 p-4 rounded-2xl">
+<div id="supportPanel"
+class="hidden fixed inset-0 bg-black/70 flex items-end justify-center z-50">
 
-  <h2 class="text-lg font-bold mb-3">🛟 Podpora</h2>
+  <div class="w-full max-w-md bg-gray-900 rounded-t-3xl p-4">
 
-  <!-- LISTĂ CONVERSAȚII -->
-  <div id="supportList" class="space-y-2"></div>
+    <div class="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-3"></div>
 
-  <!-- CHAT -->
-  <div id="supportChat" class="hidden mt-4">
+    <h2 class="text-lg font-bold mb-3 text-center">🛟 Podpora</h2>
 
-    <div id="supportMessages"
-    class="bg-gray-900 p-3 rounded-xl h-40 overflow-y-auto text-sm mb-2">
-    </div>
+    <!-- LISTĂ -->
+    <div id="supportList" class="space-y-2"></div>
 
-    <div class="flex gap-2">
-      <input id="supportReply"
-      placeholder="Odpovědět..."
-      class="flex-1 p-2 rounded bg-gray-700 text-white">
+    <!-- CHAT -->
+    <div id="supportChat" class="hidden mt-4">
 
-      <button onclick="sendAdminReply()"
-      class="bg-purple-600 px-3 rounded">
-        ➤
-      </button>
+      <div id="supportMessages"
+      class="bg-gray-800 p-3 rounded-xl h-40 overflow-y-auto text-sm mb-2">
+      </div>
+
+      <div class="flex gap-2">
+        <input id="supportReply"
+        class="flex-1 p-2 rounded bg-gray-700 text-white">
+
+        <button onclick="sendAdminReply()"
+        class="bg-purple-600 px-3 rounded">
+          ➤
+        </button>
+      </div>
+
     </div>
 
   </div>
@@ -1065,6 +1071,19 @@ window.toggleSupportPanel = function(){
 
 };
   
+
+setTimeout(()=>{
+  const panel = document.getElementById("supportPanel");
+
+  if(panel){
+    panel.addEventListener("click",(e)=>{
+      if(e.target.id === "supportPanel"){
+        panel.classList.add("hidden");
+      }
+    });
+  }
+},500);
+
   
 </script>
 
