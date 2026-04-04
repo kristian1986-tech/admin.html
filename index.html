@@ -1213,12 +1213,22 @@ async function sendSupportReply(){
 
   if(!text || !currentSupportChatId) return;
 
+  // 🔥 trimite mesaj
   await addDoc(
     collection(db,"supportChats",currentSupportChatId,"messages"),
     {
       text: text,
       sender: "admin",
       createdAt: serverTimestamp()
+    }
+  );
+
+  // 🔥 UPDATE LIST (IMPORTANT)
+  await updateDoc(
+    doc(db,"supportChats",currentSupportChatId),
+    {
+      lastMessage: text,
+      updatedAt: serverTimestamp()
     }
   );
 
