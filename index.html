@@ -1097,7 +1097,7 @@ function listenSupportChats(){
   onSnapshot(
     query(
       collection(db,"supportChats"),
-     orderBy("createdAt","desc")
+     orderBy("updatedAt","desc")
     ),
     snapshot=>{
 
