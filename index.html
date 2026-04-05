@@ -1124,20 +1124,7 @@ function listenSupportChats(){
         // 🔥 CLICK → deschide chat (pasul 3)
 
 div.onclick = ()=>{
-
-  const chatBox = document.getElementById("supportChatBox");
-
-  // 🔥 dacă apeși pe același chat → închide
-  if(currentSupportChatId === chatId && !chatBox.classList.contains("hidden")){
-    chatBox.classList.add("hidden");
-    currentSupportChatId = null;
-    return;
-  }
-
-  
-  // 🔥 altfel → deschide normal
   openSupportChat(chatId);
-
 };        
 
         list.appendChild(div);
