@@ -1183,21 +1183,44 @@ function listenSupportMessages(chatId){
 
       box.innerHTML = "";
 
-      snapshot.forEach(docSnap=>{
-        const msg = docSnap.data();
+snapshot.forEach(docSnap=>{
+  const msg = docSnap.data();
+  const msgId = docSnap.id;
 
-        const div = document.createElement("div");
+  const wrapper = document.createElement("div");
+  wrapper.className = "flex items-center gap-2 mb-1";
 
-        div.innerText = msg.text;
+  const div = document.createElement("div");
+  div.innerText = msg.text;
 
-        if(msg.sender === "admin"){
-          div.className = "bg-blue-600 p-2 rounded-xl ml-auto mb-1 max-w-[70%]";
-        }else{
-          div.className = "bg-gray-700 p-2 rounded-xl mr-auto mb-1 max-w-[70%]";
-        }
+  if(msg.sender === "admin"){
+    div.className = "bg-blue-600 p-2 rounded-xl ml-auto max-w-[70%]";
+  }else{
+    div.className = "bg-gray-700 p-2 rounded-xl mr-auto max-w-[70%]";
+  }
 
-        box.appendChild(div);
-      });
+  const delBtn = document.createElement("button");
+  delBtn.innerText = "🗑️";
+  delBtn.className = "text-xs bg-red-600 px-2 py-1 rounded";
+
+  delBtn.onclick = async ()=>{
+    if(confirm("Ștergi mesajul?")){
+      await deleteDoc(
+        doc(db,"supportChats",chatId,"messages",msgId)
+      );
+    }
+  };
+
+  if(msg.sender === "admin"){
+    wrapper.appendChild(div);
+    wrapper.appendChild(delBtn);
+  }else{
+    wrapper.appendChild(delBtn);
+    wrapper.appendChild(div);
+  }
+
+  box.appendChild(wrapper);
+});
 
       box.scrollTop = box.scrollHeight;
 
