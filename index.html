@@ -1127,11 +1127,15 @@ div.onclick = ()=>{
 
   const chatBox = document.getElementById("supportChatBox");
 
-  if(currentSupportChatId === chatId && !chatBox.classList.contains("hidden")){
-    chatBox.classList.add("hidden");
-    return;
-  }
+if(currentSupportChatId === chatId && !chatBox.classList.contains("hidden")){
+  chatBox.classList.add("hidden");
 
+  // 🔥 IMPORTANT
+  currentSupportChatId = null;
+
+  return;
+}
+  
   openSupportChat(chatId);
 
 }; 
