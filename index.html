@@ -1112,15 +1112,46 @@ function listenSupportChats(){
 
         div.className = "bg-gray-700 p-3 rounded-xl cursor-pointer active:scale-95 transition";
 
-        div.innerHTML = `
-          <div class="text-sm font-semibold">
-            📱 ${chat.phone || "Client"}
-          </div>
-          <div class="text-xs text-gray-300">
-            ${chat.lastMessage || "Žádná zpráva"}
-          </div>
-        `;
+          div.innerHTML = `
+  <div class="flex justify-between items-center">
+    <div>
+      <div class="text-sm font-semibold">
+        📱 ${chat.phone || "Client"}
+      </div>
+      <div class="text-xs text-gray-300">
+        ${chat.lastMessage || "Žádná zpráva"}
+      </div>
+    </div>
 
+    <button class="deleteChatBtn bg-red-600 px-2 py-1 rounded text-xs">
+      🗑️
+    </button>
+  </div>
+`;
+
+
+div.querySelector(".deleteChatBtn").onclick = async (e)=>{
+  e.stopPropagation(); // 🔥 IMPORTANT (nu deschide chatul)
+
+  if(confirm("Ștergi toată conversația?")){
+
+    // 🔥 șterge toate mesajele
+    const msgs = await getDocs(
+      collection(db,"supportChats",chatId,"messages")
+    );
+
+    msgs.forEach(async (m)=>{
+      await deleteDoc(
+        doc(db,"supportChats",chatId,"messages",m.id)
+      );
+    });
+
+    // 🔥 șterge chatul
+    await deleteDoc(doc(db,"supportChats",chatId));
+  }
+};
+        
+        
         // 🔥 CLICK → deschide chat (pasul 3)
 
 div.onclick = ()=>{
@@ -1185,41 +1216,18 @@ function listenSupportMessages(chatId){
 
 snapshot.forEach(docSnap=>{
   const msg = docSnap.data();
-  const msgId = docSnap.id;
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "flex items-center gap-2 mb-1";
 
   const div = document.createElement("div");
+
   div.innerText = msg.text;
 
   if(msg.sender === "admin"){
-    div.className = "bg-blue-600 p-2 rounded-xl ml-auto max-w-[70%]";
+    div.className = "bg-blue-600 p-2 rounded-xl ml-auto mb-1 max-w-[70%]";
   }else{
-    div.className = "bg-gray-700 p-2 rounded-xl mr-auto max-w-[70%]";
+    div.className = "bg-gray-700 p-2 rounded-xl mr-auto mb-1 max-w-[70%]";
   }
 
-  const delBtn = document.createElement("button");
-  delBtn.innerText = "🗑️";
-  delBtn.className = "text-xs bg-red-600 px-2 py-1 rounded";
-
-  delBtn.onclick = async ()=>{
-    if(confirm("Ștergi mesajul?")){
-      await deleteDoc(
-        doc(db,"supportChats",chatId,"messages",msgId)
-      );
-    }
-  };
-
-  if(msg.sender === "admin"){
-    wrapper.appendChild(div);
-    wrapper.appendChild(delBtn);
-  }else{
-    wrapper.appendChild(delBtn);
-    wrapper.appendChild(div);
-  }
-
-  box.appendChild(wrapper);
+  box.appendChild(div);
 });
 
       box.scrollTop = box.scrollHeight;
