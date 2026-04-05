@@ -1124,8 +1124,17 @@ function listenSupportChats(){
         // 🔥 CLICK → deschide chat (pasul 3)
 
 div.onclick = ()=>{
+
+  const chatBox = document.getElementById("supportChatBox");
+
+  if(currentSupportChatId === chatId && !chatBox.classList.contains("hidden")){
+    chatBox.classList.add("hidden");
+    return;
+  }
+
   openSupportChat(chatId);
-};        
+
+}; 
 
         list.appendChild(div);
 
@@ -1138,11 +1147,18 @@ div.onclick = ()=>{
 
 let currentSupportChatId = null;
 
+  
 function openSupportChat(chatId){
+
+  const chatBox = document.getElementById("supportChatBox");
+
+  // 🔥 dacă e deja același chat → nu mai porni listener din nou
+  if(currentSupportChatId === chatId){
+    return;
+  }
 
   currentSupportChatId = chatId;
 
-  const chatBox = document.getElementById("supportChatBox");
   chatBox.classList.remove("hidden");
 
   listenSupportMessages(chatId);
