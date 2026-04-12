@@ -1076,9 +1076,32 @@ div.querySelector(".unblockBtn").onclick = async () => {
   alert("Odblokováno ✅");
 };
 
-// 🗑️ DELETE DIN LISTĂ (doar UI)
-div.querySelector(".deleteBtn").onclick = () => {
+// 🗑️ DELETE DIN LISTĂ 
+
+div.querySelector(".deleteBtn").onclick = async () => {
+
+  if(!confirm("Ștergi TOATE cursele anulate pentru acest client?")) return;
+
+  const snap = await getDocs(collection(db,"rides"));
+
+  for(const docSnap of snap.docs){
+
+    const ride = docSnap.data();
+
+    if(
+      ride.status === "cancelled" &&
+      (
+        ride.phone === item.phone ||
+        ride.deviceId === item.deviceId
+      )
+    ){
+      await deleteDoc(doc(db,"rides", docSnap.id));
+    }
+
+  }
+
   div.remove();
+
 };
 
     container.appendChild(div);
