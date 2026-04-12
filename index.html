@@ -419,7 +419,7 @@ snapshot.forEach(docSnap=>{
 const ride={id:docSnap.id,...docSnap.data()};
 
 if(currentView==="active" &&
-(ride.status==="completed"||ride.status==="rejected"||ride.status==="cancelled")) return;
+(ride.status==="completed"||ride.status==="rejected"||ride.status==="cancelled"||ride.status==="cancelled_by_driver")) return;
 
 if(currentView==="history" &&
 (ride.status==="new"||ride.status==="confirmed"||ride.status==="arrived" || ride.status==="cancelled_by_driver")) return;
