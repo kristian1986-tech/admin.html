@@ -766,7 +766,7 @@ if(ride.receiptDate){
 
 if(date.getFullYear()!=year || (date.getMonth()+1)!=parseInt(month)) return;
 
-const price = Number(ride.estimatedPrice) || 0;
+const price = Number(ride.finalPrice ?? ride.estimatedPrice) || 0;
 total += price;
 
 pdf.text(fixText(date.toLocaleDateString("cs-CZ")),20,y);
