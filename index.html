@@ -889,7 +889,7 @@ if(ride.receiptDate){
 
 if(date.getFullYear() !== year) return;
 
-const price = Number(ride.estimatedPrice) || 0;
+const price = Number(ride.finalPrice ?? ride.estimatedPrice) || 0;
 total += price;
 
 pdf.text(date.toLocaleDateString("cs-CZ"),20,y);
