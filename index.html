@@ -737,19 +737,31 @@ y += 4;
 pdf.line(20,y,190,y);
 y += 6;
 
-// DATA
-snap.forEach(docSnap=>{
 
-const ride = docSnap.data();
+// 🔥 SORTARE CORECTĂ
+const rides = [];
+
+snap.forEach(docSnap=>{
+  rides.push(docSnap.data());
+});
+
+rides.sort((a,b)=>{
+  const d1 = a.receiptDate?.seconds || a.createdAt?.seconds || 0;
+  const d2 = b.receiptDate?.seconds || b.createdAt?.seconds || 0;
+  return d2 - d1;
+});
+
+// DATA
+rides.forEach(ride=>{
 
 if(ride.driverId !== driverId) return;
 if(ride.status !== "completed") return;
 
 let date;
 if(ride.receiptDate){
-date = new Date(ride.receiptDate.seconds * 1000);
+  date = new Date(ride.receiptDate.seconds * 1000);
 }else if(ride.createdAt){
-date = new Date(ride.createdAt.seconds * 1000);
+  date = new Date(ride.createdAt.seconds * 1000);
 }else return;
 
 if(date.getFullYear()!=year || (date.getMonth()+1)!=parseInt(month)) return;
@@ -758,6 +770,7 @@ const price = Number(ride.estimatedPrice) || 0;
 total += price;
 
 pdf.text(fixText(date.toLocaleDateString("cs-CZ")),20,y);
+
 const pickupLines = pdf.splitTextToSize(fixText(ride.pickup || ""), 60);
 const destLines = pdf.splitTextToSize(fixText(ride.destination || ""), 60);
 
@@ -765,17 +778,17 @@ pdf.text(pickupLines,55,y);
 pdf.text(destLines,120,y);
 pdf.text(price + " Kc",180,y,{align:"right"});
 
-  
 const lines = Math.max(pickupLines.length, destLines.length);
 y += lines * 6;
 
 if(y > 270){
-pdf.addPage();
-y = 20;
+  pdf.addPage();
+  y = 20;
 }
 
 });
 
+  
 // TOTAL
 y += 5;
 pdf.line(20,y,190,y);
