@@ -119,6 +119,11 @@ class="w-full bg-gradient-to-r from-red-500 to-red-600 py-4 rounded-2xl shadow-x
 ⚠️ Zrušené jízdy
 </button>
 
+<button onclick="toggleDriverCancelledPanel()" 
+class="w-full bg-gradient-to-r from-orange-500 to-orange-600 py-4 rounded-2xl shadow-xl mt-3 font-bold text-lg text-white active:scale-95 transition">
+🚫 Zrušené řidičem
+</button>
+  
 
 <div id="supportPanel"
 class="hidden fixed inset-0 bg-black/70 flex items-end justify-center z-50">
@@ -417,7 +422,7 @@ if(currentView==="active" &&
 (ride.status==="completed"||ride.status==="rejected"||ride.status==="cancelled")) return;
 
 if(currentView==="history" &&
-(ride.status==="new"||ride.status==="confirmed"||ride.status==="arrived")) return;
+(ride.status==="new"||ride.status==="confirmed"||ride.status==="arrived" || ride.status==="cancelled_by_driver")) return;
 
 const rideDiv=document.createElement("div");
 rideDiv.className="bg-gray-700 p-4 rounded";
@@ -1319,9 +1324,98 @@ async function sendSupportReply(){
 }
 
 window.sendSupportReply = sendSupportReply;
+
+
+window.toggleDriverCancelledPanel = function(){
+
+  const panel = document.getElementById("driverCancelledPanel");
+
+  if(panel.classList.contains("hidden")){
+    panel.classList.remove("hidden");
+    loadDriverCancelledRides();
+  } else {
+    panel.classList.add("hidden");
+  }
+
+}
+
+
+  
+async function loadDriverCancelledRides(){
+
+  const container = document.getElementById("driverCancelledList");
+  const filter = document.getElementById("driverCancelledFilter");
+
+  container.innerHTML = "Loading...";
+
+  const snap = await getDocs(collection(db,"rides"));
+
+  container.innerHTML = "";
+
+  const driversSet = new Set();
+
+  snap.forEach(docSnap=>{
+
+    const ride = docSnap.data();
+
+    if(ride.status !== "cancelled_by_driver") return;
+
+    driversSet.add(ride.driverName || "-");
+
+  });
+
+  // 🔥 populare select
+  filter.innerHTML = `<option value="all">👤 Všichni řidiči</option>`;
+  driversSet.forEach(name=>{
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    filter.appendChild(opt);
+  });
+
+  renderDriverCancelledList(snap, "all");
+
+  filter.onchange = ()=>{
+    renderDriverCancelledList(snap, filter.value);
+  };
+
+}
+
+
+  
+function renderDriverCancelledList(snap, driver){
+
+  const container = document.getElementById("driverCancelledList");
+  container.innerHTML = "";
+
+  snap.forEach(docSnap=>{
+
+    const ride = docSnap.data();
+
+    if(ride.status !== "cancelled_by_driver") return;
+
+    if(driver !== "all" && ride.driverName !== driver) return;
+
+    const div = document.createElement("div");
+    div.className="bg-gray-800 p-4 rounded-xl";
+
+    div.innerHTML = `
+      <p><strong>Odkud:</strong> ${ride.pickup}</p>
+      <p><strong>Kam:</strong> ${ride.destination}</p>
+      <p><strong>Řidič:</strong> ${ride.driverName || "-"}</p>
+      <p class="text-red-400"><strong>Status:</strong> cancelled_by_driver</p>
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
   
   
 </script>
+  
 
   <button onclick="toggleDriverStats()" 
 class="fixed bottom-6 right-6 w-16 h-16 
@@ -1418,6 +1512,33 @@ class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
 
 </div>
 
+
+<div id="driverCancelledPanel"
+class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+  <div class="bg-gray-900 p-6 rounded-2xl w-[95%] max-w-md max-h-[80vh] overflow-y-auto">
+
+    <h2 class="text-xl font-bold mb-4 text-center">
+      🚫 Zrušené jízdy řidičem
+    </h2>
+
+    <select id="driverCancelledFilter"
+    class="w-full p-3 rounded bg-gray-800 border border-gray-600 mb-4">
+      <option value="all">👤 Všichni řidiči</option>
+    </select>
+
+    <div id="driverCancelledList" class="space-y-3"></div>
+
+    <button onclick="toggleDriverCancelledPanel()" 
+    class="w-full mt-4 bg-gray-700 py-2 rounded">
+      Zavřít
+    </button>
+
+  </div>
+
+</div>
+  
+  
   
 </body>
 </html>
