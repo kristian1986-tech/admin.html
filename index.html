@@ -287,7 +287,7 @@ adminSection.classList.add("hidden");
 /* DASHBOARD */
 
 async function loadDashboard(){
-const snapshot = await getDocs(collection(db,"receipts"));
+const snapshot = await getDocs(collection(db,"rides"));
 let todayTotal=0, monthTotal=0, totalCompleted=0;
 const now=new Date();
 
