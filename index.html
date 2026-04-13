@@ -77,6 +77,11 @@ Přihlásit se
 <p id="totalRides" class="text-2xl font-bold text-blue-400">0</p>
 <p id="ridesProgress" class="text-gray-400 mt-1 text-sm"></p>
 </div>
+
+<div class="bg-gray-800 p-4 rounded mt-4">
+  <p class="text-gray-400 mb-2">🎁 Promo výherci</p>
+  <div id="promoList" class="text-sm space-y-1"></div>
+</div>
  
 </div>
 
@@ -288,6 +293,7 @@ adminSection.classList.add("hidden");
 /* DASHBOARD */
 
 async function loadDashboard(){
+  
 const snapshot = await getDocs(collection(db,"rides"));
 let todayTotal=0, monthTotal=0, totalCompleted=0;
 const now=new Date();
@@ -317,13 +323,18 @@ monthTotal+=data.price||0;
 // 🔥 PROMO CHECK (fără spam)
 const lastShownPromo = localStorage.getItem("lastPromo") || 0;
 
-if(totalCompleted > 0 &&
-   totalCompleted % 300 === 0 &&
-   totalCompleted != lastShownPromo){
+if(totalCompleted % 300 === 0 && totalCompleted != lastShownPromo){
 
   localStorage.setItem("lastPromo", totalCompleted);
 
   const lastRide = snapshot.docs[snapshot.docs.length - 1].data();
+
+  // 🔥 SALVEAZĂ ÎN FIREBASE
+  await addDoc(collection(db,"promoWinners"),{
+    rideNumber: totalCompleted,
+    phone: lastRide.phone || "-",
+    createdAt: new Date()
+  });
 
   alert(
     "🎉 PROMO WINNER!\n\n" +
@@ -331,7 +342,6 @@ if(totalCompleted > 0 &&
     "Telefon: " + (lastRide.phone || "necunoscut")
   );
 }
-
 
   
 document.getElementById("todayTotal").innerText = todayTotal+" Kč";
@@ -343,6 +353,8 @@ const remaining = 300 - (totalCompleted % 300);
 
 document.getElementById("ridesProgress").innerText =
   "Zbývá " + remaining + " jízd do bonusu";
+
+loadPromoWinners();
   
 }
 
@@ -1491,6 +1503,31 @@ function renderDriverCancelledList(snap, driver){
 
     container.appendChild(div);
 
+  });
+
+}
+
+
+  
+async function loadPromoWinners(){
+
+  const container = document.getElementById("promoList");
+  if(!container) return;
+
+  const snap = await getDocs(collection(db,"promoWinners"));
+
+  container.innerHTML = "";
+
+  snap.forEach(docSnap=>{
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+
+    div.innerText =
+      "🎉 " + d.rideNumber +
+      " | 📱 " + d.phone;
+
+    container.appendChild(div);
   });
 
 }
