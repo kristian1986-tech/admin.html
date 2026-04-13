@@ -61,17 +61,25 @@ Přihlásit se
 
 <div id="adminSection" class="hidden">
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">  
 <div class="bg-gray-800 p-4 rounded">
 <p class="text-gray-400">💰 Dnes</p>
 <p id="todayTotal" class="text-2xl font-bold text-green-400">0 Kč</p>
 </div>
+  
 <div class="bg-gray-800 p-4 rounded">
 <p class="text-gray-400">📅 Tento měsíc</p>
 <p id="monthTotal" class="text-2xl font-bold text-yellow-400">0 Kč</p>
 </div>
+
+<div class="bg-gray-800 p-4 rounded">
+<p class="text-gray-400">🚕 Celkem jízd</p>
+<p id="totalRides" class="text-2xl font-bold text-blue-400">0</p>
+</div>
+ 
 </div>
 
+  
 <div class="flex gap-4 mb-6 items-center flex-wrap">
 
   <button onclick="showActive()" class="bg-yellow-500 text-black px-4 py-2 rounded">
@@ -296,8 +304,32 @@ date.getFullYear()===now.getFullYear())
 monthTotal+=data.price||0;
 });
 
+// 🔥 TOTAL CURSE
+const totalCompleted = snapshot.size;
+
+// 🔥 PROMO CHECK (fără spam)
+const lastShownPromo = localStorage.getItem("lastPromo") || 0;
+
+if(totalCompleted > 0 &&
+   totalCompleted % 300 === 0 &&
+   totalCompleted != lastShownPromo){
+
+  localStorage.setItem("lastPromo", totalCompleted);
+
+  const lastRide = snapshot.docs[snapshot.docs.length - 1].data();
+
+  alert(
+    "🎉 PROMO WINNER!\n\n" +
+    "Cursa nr: " + totalCompleted + "\n" +
+    "Telefon: " + (lastRide.phone || "necunoscut")
+  );
+}
+
+
+  
 document.getElementById("todayTotal").innerText = todayTotal+" Kč";
 document.getElementById("monthTotal").innerText = monthTotal+" Kč";
+document.getElementById("totalRides").innerText = totalCompleted;
 }
 
 /* PDF PROFESIONAL */
