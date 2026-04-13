@@ -323,23 +323,32 @@ monthTotal+=data.price||0;
 // 🔥 PROMO CHECK (fără spam)
 const lastShownPromo = localStorage.getItem("lastPromo") || 0;
 
-if(totalCompleted % 300 === 0 && totalCompleted != lastShownPromo){
+// 🔥 PROMO SAFE SYSTEM
+const lastSavedPromo = Number(localStorage.getItem("lastPromoSaved") || 0);
+const currentStep = Math.floor(totalCompleted / 300);
 
-  localStorage.setItem("lastPromo", totalCompleted);
+if(currentStep > lastSavedPromo){
 
-  const lastRide = snapshot.docs[snapshot.docs.length - 1].data();
+  localStorage.setItem("lastPromoSaved", currentStep);
 
-  // 🔥 SALVEAZĂ ÎN FIREBASE
-  await addDoc(collection(db,"promoWinners"),{
+const completedRides = snapshot.docs
+  .map(doc => doc.data())
+  .filter(r => r.status === "completed");
+
+const lastRide = completedRides[completedRides.length - 1];
+
+  // 🔥 SALVARE ÎN FIRESTORE
+  await addDoc(collection(db, "promoWinners"), {
     rideNumber: totalCompleted,
     phone: lastRide.phone || "-",
     createdAt: new Date()
   });
 
+  // 🔔 alert (doar o dată)
   alert(
     "🎉 PROMO WINNER!\n\n" +
     "Cursa nr: " + totalCompleted + "\n" +
-    "Telefon: " + (lastRide.phone || "necunoscut")
+    "Telefon: " + (lastRide.phone || "-")
   );
 }
 
