@@ -288,12 +288,19 @@ adminSection.classList.add("hidden");
 
 async function loadDashboard(){
 const snapshot = await getDocs(collection(db,"receipts"));
-let todayTotal=0, monthTotal=0;
+let todayTotal=0, monthTotal=0, totalCompleted=0;
 const now=new Date();
 
 snapshot.forEach(docSnap=>{
-const data=docSnap.data();
-if(!data.date) return;
+  const data = docSnap.data();
+
+  // 🔥 NUMĂRĂ DOAR CURSE FINALIZATE
+  if(data.status === "completed"){
+    totalCompleted++;
+  }
+
+  if(!data.date) return;
+  
 const date=new Date(data.date.seconds*1000);
 
 if(date.toDateString()===now.toDateString())
@@ -304,8 +311,7 @@ date.getFullYear()===now.getFullYear())
 monthTotal+=data.price||0;
 });
 
-// 🔥 TOTAL CURSE
-const totalCompleted = snapshot.size;
+
 
 // 🔥 PROMO CHECK (fără spam)
 const lastShownPromo = localStorage.getItem("lastPromo") || 0;
