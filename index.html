@@ -75,6 +75,7 @@ Přihlásit se
 <div class="bg-gray-800 p-4 rounded">
 <p class="text-gray-400">🚕 Celkem jízd</p>
 <p id="totalRides" class="text-2xl font-bold text-blue-400">0</p>
+<p id="ridesProgress" class="text-gray-400 mt-1 text-sm"></p>
 </div>
  
 </div>
@@ -336,6 +337,13 @@ if(totalCompleted > 0 &&
 document.getElementById("todayTotal").innerText = todayTotal+" Kč";
 document.getElementById("monthTotal").innerText = monthTotal+" Kč";
 document.getElementById("totalRides").innerText = totalCompleted;
+
+// 🔥 PROGRES BONUS
+const remaining = 300 - (totalCompleted % 300);
+
+document.getElementById("ridesProgress").innerText =
+  "Zbývá " + remaining + " jízd do bonusu";
+  
 }
 
 /* PDF PROFESIONAL */
