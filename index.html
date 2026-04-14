@@ -82,7 +82,12 @@ Přihlásit se
   <p class="text-gray-400 mb-2">🎁 Promo výherci</p>
   <div id="promoList" class="text-sm space-y-1"></div>
 </div>
- 
+
+<div onclick="toggleBigPromoPanel()" class="bg-gray-800 p-4 rounded cursor-pointer">
+  <p class="text-gray-400">💎 Bonus 2000 Kč</p>
+  <p id="bigPromoProgress" class="text-sm text-gray-300 mt-1"></p>
+</div>
+
 </div>
 
   
@@ -353,6 +358,34 @@ const lastRide = completedRides[completedRides.length - 1];
 }
 
   
+// 🔥 BONUS 2000
+if(totalCompleted > 0 && totalCompleted % 2000 === 0){
+
+  const alreadyGiven = localStorage.getItem("bigPromo_" + totalCompleted);
+
+  if(!alreadyGiven){
+
+    const completedRides = snapshot.docs
+      .map(doc => doc.data())
+      .filter(r => r.status === "completed");
+
+    const lastRide = completedRides[completedRides.length - 1];
+
+    await addDoc(collection(db,"bigWinners"),{
+      rideNumber: totalCompleted,
+      phone: lastRide?.phone || "-",
+      createdAt: new Date()
+    });
+
+    localStorage.setItem("bigPromo_" + totalCompleted, "1");
+
+    alert("🎉 BONUS 2000 Kč!\n\nCursa: " + totalCompleted);
+
+  }
+}
+
+  
+  
 document.getElementById("todayTotal").innerText = todayTotal+" Kč";
 document.getElementById("monthTotal").innerText = monthTotal+" Kč";
 document.getElementById("totalRides").innerText = totalCompleted;
@@ -363,6 +396,12 @@ const remaining = 300 - (totalCompleted % 300);
 document.getElementById("ridesProgress").innerText =
   "Zbývá " + remaining + " jízd do bonusu";
 
+
+ const remainingBig = 2000 - (totalCompleted % 2000);
+
+document.getElementById("bigPromoProgress").innerText =
+  "Zbývá " + remainingBig + " jízd"; 
+  
 loadPromoWinners();
   
 }
@@ -1541,6 +1580,48 @@ async function loadPromoWinners(){
 
 }
 
+
+
+window.toggleBigPromoPanel = function(){
+
+  const panel = document.getElementById("bigPromoPanel");
+
+  if(panel.classList.contains("hidden")){
+    panel.classList.remove("hidden");
+    loadBigWinners();
+  } else {
+    panel.classList.add("hidden");
+  }
+
+}
+
+
+
+async function loadBigWinners(){
+
+  const container = document.getElementById("bigPromoList");
+  container.innerHTML = "Loading...";
+
+  const snap = await getDocs(collection(db,"bigWinners"));
+
+  container.innerHTML = "";
+
+  snap.forEach(docSnap=>{
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "bg-gray-800 p-3 rounded mt-2";
+
+    div.innerHTML = `
+      💎 ${d.rideNumber}<br>
+      📱 ${d.phone}
+    `;
+
+    container.appendChild(div);
+  });
+
+}
+  
   
   
 </script>
@@ -1667,6 +1748,26 @@ class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
 
   </div>
 
+</div>
+
+
+<div id="bigPromoPanel"
+class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+  <div class="bg-gray-900 p-6 rounded-2xl w-[95%] max-w-md max-h-[80vh] overflow-y-auto">
+
+    <h2 class="text-xl font-bold mb-4 text-center">
+      💎 Výherci 2000 Kč
+    </h2>
+
+    <div id="bigPromoList"></div>
+
+    <button onclick="toggleBigPromoPanel()" 
+    class="w-full mt-4 bg-gray-700 py-2 rounded">
+      Zavřít
+    </button>
+
+  </div>
 </div>
   
   
