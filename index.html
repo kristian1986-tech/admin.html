@@ -358,35 +358,41 @@ const lastRide = completedRides[completedRides.length - 1];
 }
 
   
-// 💎 BONUS (SAFE + EXACT RIDE)
+  
+// 💎 BONUS SAFE (NU MAI CRAPĂ)
 
-const STEP = 21; 
+try{
 
-const currentStep = Math.floor(totalCompleted / STEP);
-const lastSavedStep = Number(localStorage.getItem("lastBigPromo") || 0);
+  const STEP = 21; // pune 21 pentru test
 
-if(currentStep > lastSavedStep){
+  const currentStep = Math.floor(totalCompleted / STEP);
+  const lastSavedStep = Number(localStorage.getItem("lastBigPromo") || 0);
 
-  const completedRides = snapshot.docs
-    .map(doc => doc.data())
-    .filter(r => r.status === "completed");
+  if(currentStep > lastSavedStep){
 
-  // 🔥 LUĂM EXACT CURSA DE LA PRAG
-  const targetIndex = (currentStep * STEP) - 1;
-  const winningRide = completedRides[targetIndex];
+    const completedRides = snapshot.docs
+      .map(doc => doc.data())
+      .filter(r => r.status === "completed");
 
-  if(winningRide){
+    // 🔥 verificare siguranță
+    if(completedRides.length >= currentStep * STEP){
 
-    await addDoc(collection(db,"bigWinners"),{
-      rideNumber: currentStep * STEP,
-      phone: winningRide.phone || "-",
-      createdAt: new Date()
-    });
+      const winningRide = completedRides[(currentStep * STEP) - 1];
 
-    localStorage.setItem("lastBigPromo", currentStep);
+      await addDoc(collection(db,"bigWinners"),{
+        rideNumber: currentStep * STEP,
+        phone: winningRide?.phone || "-",
+        createdAt: new Date()
+      });
 
-    alert("🎉 BONUS!\n\nCursa: " + (currentStep * STEP));
+      localStorage.setItem("lastBigPromo", currentStep);
+
+      alert("🎉 BONUS!\n\nCursa: " + (currentStep * STEP));
+    }
   }
+
+}catch(e){
+  console.error("BIG PROMO ERROR:", e);
 }
 
   
