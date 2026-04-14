@@ -358,32 +358,29 @@ const lastRide = completedRides[completedRides.length - 1];
 }
 
   
-// 🔥 BONUS 2000
-if(totalCompleted > 0 && totalCompleted % 17 === 0){
+// 💎 BONUS 2000 (SAFE SYSTEM)
 
-  const alreadyGiven = localStorage.getItem("bigPromo_" + totalCompleted);
+const bigStep = Math.floor(totalCompleted / 18);
+const lastBigSaved = Number(localStorage.getItem("lastBigPromo") || 0);
 
-  if(!alreadyGiven){
+if(bigStep > lastBigSaved){
 
-    const completedRides = snapshot.docs
-      .map(doc => doc.data())
-      .filter(r => r.status === "completed");
+  localStorage.setItem("lastBigPromo", bigStep);
 
-    const lastRide = completedRides[completedRides.length - 1];
+  const completedRides = snapshot.docs
+    .map(doc => doc.data())
+    .filter(r => r.status === "completed");
 
-    await addDoc(collection(db,"bigWinners"),{
-      rideNumber: totalCompleted,
-      phone: lastRide?.phone || "-",
-      createdAt: new Date()
-    });
+  const lastRide = completedRides[completedRides.length - 1];
 
-    localStorage.setItem("bigPromo_" + totalCompleted, "1");
+  await addDoc(collection(db,"bigWinners"),{
+    rideNumber: totalCompleted,
+    phone: lastRide?.phone || "-",
+    createdAt: new Date()
+  });
 
-    alert("🎉 BONUS 2000 Kč!\n\nCursa: " + totalCompleted);
-
-  }
+  alert("🎉 BONUS 2000 Kč!\n\nCursa: " + totalCompleted);
 }
-
   
   
 document.getElementById("todayTotal").innerText = todayTotal+" Kč";
@@ -398,7 +395,7 @@ document.getElementById("ridesProgress").innerText =
 
 
   // 🔥 PROGRES BONUS 2000
- const remainingBig = 17 - (totalCompleted % 17);
+ const remainingBig = 18 - (totalCompleted % 18);
 
 document.getElementById("bigPromoProgress").innerText =
   "Zbývá " + remainingBig + " jízd"; 
