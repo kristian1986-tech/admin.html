@@ -361,7 +361,7 @@ const lastRide = completedRides[completedRides.length - 1];
 
 // 🔥 BONUS 2000 (SEPARAT)
 const lastSavedBig = Number(localStorage.getItem("lastBigPromoSaved") || 0);
-const currentBigStep = Math.floor(totalCompleted / 14);
+const currentBigStep = Math.floor(totalCompleted / 15);
 
 if(currentBigStep > lastSavedBig){
 
@@ -401,7 +401,7 @@ document.getElementById("ridesProgress").innerText =
 
   
 // 🔥 BONUS 2000 PROGRES
-const remaining2000 = 14 - (totalCompleted % 14);
+const remaining2000 = 15 - (totalCompleted % 15);
 
 document.getElementById("totalRides2000").innerText = totalCompleted;
 
