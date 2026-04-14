@@ -358,32 +358,36 @@ const lastRide = completedRides[completedRides.length - 1];
 }
 
   
-// 🔥 BONUS 2000
-if(totalCompleted > 0 && totalCompleted % 21 === 0){
+// 💎 BONUS (SAFE + EXACT RIDE)
 
-  const alreadyGiven = localStorage.getItem("bigPromo_" + totalCompleted);
+const STEP = 21; 
 
-  if(!alreadyGiven){
+const currentStep = Math.floor(totalCompleted / STEP);
+const lastSavedStep = Number(localStorage.getItem("lastBigPromo") || 0);
 
-    const completedRides = snapshot.docs
-      .map(doc => doc.data())
-      .filter(r => r.status === "completed");
+if(currentStep > lastSavedStep){
 
-    const lastRide = completedRides[completedRides.length - 1];
+  const completedRides = snapshot.docs
+    .map(doc => doc.data())
+    .filter(r => r.status === "completed");
+
+  // 🔥 LUĂM EXACT CURSA DE LA PRAG
+  const targetIndex = (currentStep * STEP) - 1;
+  const winningRide = completedRides[targetIndex];
+
+  if(winningRide){
 
     await addDoc(collection(db,"bigWinners"),{
-      rideNumber: totalCompleted,
-      phone: lastRide?.phone || "-",
+      rideNumber: currentStep * STEP,
+      phone: winningRide.phone || "-",
       createdAt: new Date()
     });
 
-    localStorage.setItem("bigPromo_" + totalCompleted, "1");
+    localStorage.setItem("lastBigPromo", currentStep);
 
-    alert("🎉 BONUS 2000 Kč!\n\nCursa: " + totalCompleted);
-
+    alert("🎉 BONUS!\n\nCursa: " + (currentStep * STEP));
   }
 }
-
 
   
   
