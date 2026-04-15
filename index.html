@@ -359,45 +359,18 @@ const lastRide = completedRides[completedRides.length - 1];
 
   
   
-// 💎 BONUS 2000 (SAFE FĂRĂ CRASH)
+// 💎 BONUS 2000 (DOAR DETECTARE SAFE)
 
-const STEP = 23;
+const STEP = 23; 
 
 const currentStep = Math.floor(totalCompleted / STEP);
+const lastShown = Number(localStorage.getItem("bigPromoShown") || 0);
 
-if(currentStep > 0){
+if(currentStep > lastShown){
 
-  getDocs(collection(db,"bigWinners")).then(winnersSnap => {
+  localStorage.setItem("bigPromoShown", currentStep);
 
-    let exists = false;
-
-    winnersSnap.forEach(doc=>{
-      if(doc.data().rideNumber === currentStep * STEP){
-        exists = true;
-      }
-    });
-
-    if(exists) return;
-
-    const completedRides = snapshot.docs
-      .map(doc => doc.data())
-      .filter(r => r.status === "completed");
-
-    if(completedRides.length < currentStep * STEP) return;
-
-    const winningRide = completedRides[(currentStep * STEP) - 1];
-
-    addDoc(collection(db,"bigWinners"),{
-      rideNumber: currentStep * STEP,
-      phone: winningRide?.phone || "-",
-      createdAt: new Date()
-    });
-
-    alert("🎉 BONUS!\n\nCursa: " + (currentStep * STEP));
-
-  }).catch(err=>{
-    console.error("BIG PROMO ERROR:", err);
-  });
+  alert("🎉 BONUS!\n\nCursa: " + (currentStep * STEP));
 }
   
   
