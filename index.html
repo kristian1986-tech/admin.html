@@ -325,7 +325,7 @@ const lastShownPromo = localStorage.getItem("lastPromo") || 0;
 
 // 🔥 PROMO SAFE SYSTEM
 const lastSavedPromo = Number(localStorage.getItem("lastPromoSaved") || 0);
-const currentStep = Math.floor(totalCompleted / 30);
+const currentStep = Math.floor(totalCompleted / 31);
 
 if(currentStep !== lastSavedPromo){
 
@@ -358,7 +358,7 @@ document.getElementById("monthTotal").innerText = monthTotal+" Kč";
 document.getElementById("totalRides").innerText = totalCompleted;
 
 // 🔥 PROGRES BONUS
-const remaining = 30 - (totalCompleted % 30);
+const remaining = 31 - (totalCompleted % 31);
 
 document.getElementById("ridesProgress").innerText =
   "Zbývá " + remaining + " jízd do bonusu";
