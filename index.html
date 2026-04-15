@@ -1533,10 +1533,24 @@ async function loadPromoWinners(){
     const d = docSnap.data();
 
     const div = document.createElement("div");
+    div.className = "flex justify-between items-center bg-gray-800 p-2 rounded";
 
-    div.innerText =
-      "🎉 " + d.rideNumber +
-      " | 📱 " + d.phone;
+    div.innerHTML = `
+      <span>🎉 ${d.rideNumber} | 📱 ${d.phone}</span>
+      <button class="deleteWinner bg-red-600 px-2 py-1 rounded text-xs">
+        🗑️
+      </button>
+    `;
+
+    // 🔥 DELETE
+    div.querySelector(".deleteWinner").onclick = async () => {
+
+      if(!confirm("Ștergi acest câștigător?")) return;
+
+      await deleteDoc(doc(db,"promoWinners", docSnap.id));
+
+      div.remove();
+    };
 
     container.appendChild(div);
   });
