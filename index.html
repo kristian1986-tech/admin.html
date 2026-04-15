@@ -325,7 +325,7 @@ const lastShownPromo = localStorage.getItem("lastPromo") || 0;
 
 // 🔥 PROMO SAFE SYSTEM
 const STEP = 32;
-  
+
 const lastSavedPromo = Number(localStorage.getItem("lastPromoSaved") || 0);
 const currentStep = Math.floor(totalCompleted / STEP);
 
@@ -333,24 +333,23 @@ if(currentStep !== lastSavedPromo){
 
   localStorage.setItem("lastPromoSaved", currentStep);
 
-const completedRides = snapshot.docs
-  .map(doc => doc.data())
-  .filter(r => r.status === "completed");
+  const completedRides = snapshot.docs
+    .map(doc => doc.data())
+    .filter(r => r.status === "completed");
 
-const lastRide = completedRides[completedRides.length - 1]
- : { phone: "-" };
-  
-  // 🔥 SALVARE ÎN FIRESTORE
+  const lastRide = completedRides.length
+    ? completedRides[completedRides.length - 1]
+    : { phone: "-" };
+
   await addDoc(collection(db, "promoWinners"), {
-   rideNumber: currentStep * STEP 
+    rideNumber: currentStep * STEP,
     phone: lastRide.phone || "-",
     createdAt: new Date()
   });
 
-  // 🔔 alert (doar o dată)
   alert(
     "🎉 PROMO WINNER!\n\n" +
-    "Cursa nr: " + (currentStep * STEP)
+    "Cursa nr: " + (currentStep * STEP) + "\n" +
     "Telefon: " + (lastRide.phone || "-")
   );
 }
