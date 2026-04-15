@@ -366,19 +366,24 @@ document.getElementById("ridesProgress").innerText =
 loadPromoWinners();
 
 
-// 💎 BONUS 2000 SAFE (NU STRICĂ NIMIC)
+// 💎 BONUS 2000 SAFE (ANTI SKIP)
 
-const STEP_BIG = 24; // pune 24 pentru test
+const STEP_BIG = 26; // test (după pui 2000)
 
 const currentBigStep = Math.floor(totalCompleted / STEP_BIG);
-const lastBigShown = Number(localStorage.getItem("bigPromoShown") || 0);
+let lastBigShown = Number(localStorage.getItem("bigPromoShown") || 0);
 
 if(currentBigStep > lastBigShown){
 
-  localStorage.setItem("bigPromoShown", currentBigStep);
+  for(let i = lastBigShown + 1; i <= currentBigStep; i++){
 
-  alert("🎉 BONUS 2000 Kč!\n\nCursa: " + (currentBigStep * STEP_BIG));
+    alert("🎉 BONUS!\n\nCursa: " + (i * STEP_BIG));
+
+  }
+
+  localStorage.setItem("bigPromoShown", currentBigStep);
 }
+  
   
   
 }
