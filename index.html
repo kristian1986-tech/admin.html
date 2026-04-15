@@ -364,6 +364,22 @@ document.getElementById("ridesProgress").innerText =
   "Zbývá " + remaining + " jízd do bonusu";
 
 loadPromoWinners();
+
+
+// 💎 BONUS 2000 SAFE (NU STRICĂ NIMIC)
+
+const STEP_BIG = 23; // pune 23 pentru test
+
+const currentBigStep = Math.floor(totalCompleted / STEP_BIG);
+const lastBigShown = Number(localStorage.getItem("bigPromoShown") || 0);
+
+if(currentBigStep > lastBigShown){
+
+  localStorage.setItem("bigPromoShown", currentBigStep);
+
+  alert("🎉 BONUS 2000 Kč!\n\nCursa: " + (currentBigStep * STEP_BIG));
+}
+  
   
 }
 
