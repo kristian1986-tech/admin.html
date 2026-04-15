@@ -324,8 +324,10 @@ monthTotal+=data.price||0;
 const lastShownPromo = localStorage.getItem("lastPromo") || 0;
 
 // 🔥 PROMO SAFE SYSTEM
+const STEP = 31;
+  
 const lastSavedPromo = Number(localStorage.getItem("lastPromoSaved") || 0);
-const currentStep = Math.floor(totalCompleted / 31);
+const currentStep = Math.floor(totalCompleted / STEP);
 
 if(currentStep !== lastSavedPromo){
 
@@ -339,7 +341,7 @@ const lastRide = completedRides[completedRides.length - 1];
 
   // 🔥 SALVARE ÎN FIRESTORE
   await addDoc(collection(db, "promoWinners"), {
-    rideNumber: totalCompleted,
+   rideNumber: currentStep * STEP 
     phone: lastRide.phone || "-",
     createdAt: new Date()
   });
@@ -347,7 +349,7 @@ const lastRide = completedRides[completedRides.length - 1];
   // 🔔 alert (doar o dată)
   alert(
     "🎉 PROMO WINNER!\n\n" +
-    "Cursa nr: " + totalCompleted + "\n" +
+    "Cursa nr: " + (currentStep * STEP)
     "Telefon: " + (lastRide.phone || "-")
   );
 }
@@ -358,7 +360,7 @@ document.getElementById("monthTotal").innerText = monthTotal+" Kč";
 document.getElementById("totalRides").innerText = totalCompleted;
 
 // 🔥 PROGRES BONUS
-const remaining = 31 - (totalCompleted % 31);
+const remaining = STEP - (totalCompleted % STEP);
 
 document.getElementById("ridesProgress").innerText =
   "Zbývá " + remaining + " jízd do bonusu";
