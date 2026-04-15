@@ -361,7 +361,7 @@ const lastRide = completedRides[completedRides.length - 1];
   
 // 💎 BONUS 2000 (FIRESTORE SAFE)
 
-const STEP = 2000; // pune 10 pentru test
+const STEP = 23; 
 
 const currentStep = Math.floor(totalCompleted / STEP);
 
@@ -411,7 +411,7 @@ document.getElementById("ridesProgress").innerText =
 
 
   // 🔥 PROGRES BONUS 2000
- const remainingBig = 21 - (totalCompleted % 21);
+ const remainingBig = 23 - (totalCompleted % 23);
 
 document.getElementById("bigPromoProgress").innerText =
   "Zbývá " + remainingBig + " jízd"; 
