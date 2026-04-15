@@ -355,7 +355,7 @@ const completedRides = snapshot.docs
 
   
 // 🔥 PROMO SAFE SYSTEM
-const STEP = 41;
+const STEP = 300;
 
 const lastSavedPromo = Number(localStorage.getItem("lastPromoSaved") || 0);
 const currentStep = Math.floor(totalCompleted / STEP);
@@ -394,7 +394,7 @@ document.getElementById("ridesProgress").innerText =
   "Zbývá " + remaining + " jízd do bonusu";
 
 // 🔥 PROGRES BONUS 2000
-const BIG_STEP = 2000;
+const BIG_STEP = 46;
 
 const remainingBig = BIG_STEP - (totalCompleted % BIG_STEP);
 
