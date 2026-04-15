@@ -1684,7 +1684,7 @@ async function loadBigPromoWinners(){
     div.querySelector(".deleteWinner").onclick = async () => {
       if(!confirm("Ștergi acest MEGA câștigător?")) return;
 
-      await deleteDoc(doc(db,"promoWinnersBig", docSnap.id));
+      await deleteDoc(doc(db,"bigPromoWinners", docSnap.id));
       div.remove();
     };
 
