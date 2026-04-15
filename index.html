@@ -349,7 +349,11 @@ monthTotal+=data.price||0;
 
 // 🔥 PROMO CHECK (fără spam)
 const lastShownPromo = localStorage.getItem("lastPromo") || 0;
+const completedRides = snapshot.docs
+  .map(doc => doc.data())
+  .filter(r => r.status === "completed");
 
+  
 // 🔥 PROMO SAFE SYSTEM
 const STEP = 35;
 
@@ -359,10 +363,6 @@ const currentStep = Math.floor(totalCompleted / STEP);
 if(currentStep !== lastSavedPromo){
 
   localStorage.setItem("lastPromoSaved", currentStep);
-
-  const completedRides = snapshot.docs
-    .map(doc => doc.data())
-    .filter(r => r.status === "completed");
 
   const lastRide = completedRides.length
     ? completedRides[completedRides.length - 1]
@@ -403,7 +403,6 @@ document.getElementById("bigRidesProgress").innerText =
 
   
 // 🔥 BIG BONUS 2000
-const BIG_STEP = 2000;
 
 const lastSavedBig = Number(localStorage.getItem("lastBigPromo") || 0);
 const currentBigStep = Math.floor(totalCompleted / BIG_STEP);
@@ -412,11 +411,9 @@ if(currentBigStep !== lastSavedBig){
 
   localStorage.setItem("lastBigPromo", currentBigStep);
 
-  const completedRides = snapshot.docs
-    .map(doc => doc.data())
-    .filter(r => r.status === "completed");
-
-  const lastRide = completedRides[completedRides.length - 1] || { phone: "-" };
+  const lastRide = completedRides.length
+  ? completedRides[completedRides.length - 1]
+  : { phone: "-" };
 
   await addDoc(collection(db, "bigPromoWinners"), {
     rideNumber: currentBigStep * BIG_STEP,
@@ -1666,7 +1663,7 @@ async function loadBigPromoWinners(){
   const container = document.getElementById("bigPromoList");
   if(!container) return;
 
-  const snap = await getDocs(collection(db,"promoWinnersBig"));
+  const snap = await getDocs(collection(db,"bigPromoWinners"));
 
   container.innerHTML = "";
 
