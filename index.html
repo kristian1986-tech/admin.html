@@ -359,43 +359,45 @@ const lastRide = completedRides[completedRides.length - 1];
 
   
   
-// 💎 BONUS 2000 (FIRESTORE SAFE)
+// 💎 BONUS 2000 (SAFE FĂRĂ CRASH)
 
-const STEP = 23; 
+const STEP = 23;
 
 const currentStep = Math.floor(totalCompleted / STEP);
 
 if(currentStep > 0){
 
-  const snapWinners = await getDocs(collection(db,"bigWinners"));
+  getDocs(collection(db,"bigWinners")).then(winnersSnap => {
 
-  let alreadyExists = false;
+    let exists = false;
 
-  snapWinners.forEach(doc=>{
-    if(doc.data().rideNumber === currentStep * STEP){
-      alreadyExists = true;
-    }
-  });
+    winnersSnap.forEach(doc=>{
+      if(doc.data().rideNumber === currentStep * STEP){
+        exists = true;
+      }
+    });
 
-  if(!alreadyExists){
+    if(exists) return;
 
     const completedRides = snapshot.docs
       .map(doc => doc.data())
       .filter(r => r.status === "completed");
 
-    if(completedRides.length >= currentStep * STEP){
+    if(completedRides.length < currentStep * STEP) return;
 
-      const winningRide = completedRides[(currentStep * STEP) - 1];
+    const winningRide = completedRides[(currentStep * STEP) - 1];
 
-      await addDoc(collection(db,"bigWinners"),{
-        rideNumber: currentStep * STEP,
-        phone: winningRide?.phone || "-",
-        createdAt: new Date()
-      });
+    addDoc(collection(db,"bigWinners"),{
+      rideNumber: currentStep * STEP,
+      phone: winningRide?.phone || "-",
+      createdAt: new Date()
+    });
 
-      alert("🎉 BONUS!\n\nCursa: " + (currentStep * STEP));
-    }
-  }
+    alert("🎉 BONUS!\n\nCursa: " + (currentStep * STEP));
+
+  }).catch(err=>{
+    console.error("BIG PROMO ERROR:", err);
+  });
 }
   
   
