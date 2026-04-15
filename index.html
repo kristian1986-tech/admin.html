@@ -90,6 +90,24 @@ class="bg-gray-800 p-4 rounded mt-4 cursor-pointer active:scale-95 transition">
 
 </div>
 
+
+<div class="bg-gray-800 p-4 rounded mt-4">
+  <p class="text-gray-400">💰 Mega bonus (2000)</p>
+  <p id="bigTotalRides" class="text-2xl font-bold text-yellow-400">0</p>
+  <p id="bigRidesProgress" class="text-purple-400 mt-1 text-sm"></p>
+</div>
+
+<div onclick="toggleBigPromo()" 
+class="bg-gray-800 p-4 rounded mt-4 cursor-pointer active:scale-95 transition">
+
+  <p class="text-gray-400 mb-2 flex justify-between items-center">
+    💰 Mega výherci
+    <span id="bigPromoArrow">▼</span>
+  </p>
+
+  <div id="bigPromoList" class="text-sm space-y-1 hidden"></div>
+
+</div>
   
  
 </div>
@@ -374,8 +392,49 @@ const remaining = STEP - (totalCompleted % STEP);
 document.getElementById("ridesProgress").innerText =
   "Zbývá " + remaining + " jízd do bonusu";
 
-loadPromoWinners();
+// 🔥 PROGRES BONUS 2000
+const BIG_STEP = 2000;
+
+const remainingBig = BIG_STEP - (totalCompleted % BIG_STEP);
+
+document.getElementById("bigRidesProgress").innerText =
+  "Zbývá " + remainingBig + " jízd do BIG bonusu";
+
+
   
+// 🔥 BIG BONUS 2000
+const BIG_STEP = 2000;
+
+const lastSavedBig = Number(localStorage.getItem("lastBigPromo") || 0);
+const currentBigStep = Math.floor(totalCompleted / BIG_STEP);
+
+if(currentBigStep !== lastSavedBig){
+
+  localStorage.setItem("lastBigPromo", currentBigStep);
+
+  const completedRides = snapshot.docs
+    .map(doc => doc.data())
+    .filter(r => r.status === "completed");
+
+  const lastRide = completedRides[completedRides.length - 1] || { phone: "-" };
+
+  await addDoc(collection(db, "bigPromoWinners"), {
+    rideNumber: currentBigStep * BIG_STEP,
+    phone: lastRide.phone,
+    createdAt: new Date()
+  });
+
+  alert(
+    "💎 BIG BONUS!\n\n" +
+    "Cursa nr: " + (currentBigStep * BIG_STEP) + "\n" +
+    "Telefon: " + lastRide.phone
+  );
+}
+
+
+  
+loadPromoWinners();
+loadBigPromoWinners(); 
 }
 
 /* PDF PROFESIONAL */
@@ -1583,6 +1642,58 @@ window.togglePromo = function(){
 
 }
 
+
+
+window.toggleBigPromo = function(){
+
+  const list = document.getElementById("bigPromoList");
+  const arrow = document.getElementById("bigPromoArrow");
+
+  if(list.classList.contains("hidden")){
+    list.classList.remove("hidden");
+    arrow.innerText = "▲";
+  }else{
+    list.classList.add("hidden");
+    arrow.innerText = "▼";
+  }
+
+}
+
+
+
+async function loadBigPromoWinners(){
+
+  const container = document.getElementById("bigPromoList");
+  if(!container) return;
+
+  const snap = await getDocs(collection(db,"promoWinnersBig"));
+
+  container.innerHTML = "";
+
+  snap.forEach(docSnap=>{
+    const d = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "flex justify-between items-center bg-gray-800 p-2 rounded";
+
+    div.innerHTML = `
+      <span>💰 ${d.rideNumber} | 📱 ${d.phone}</span>
+      <button class="deleteWinner bg-red-600 px-2 py-1 rounded text-xs">
+        🗑️
+      </button>
+    `;
+
+    div.querySelector(".deleteWinner").onclick = async () => {
+      if(!confirm("Ștergi acest MEGA câștigător?")) return;
+
+      await deleteDoc(doc(db,"promoWinnersBig", docSnap.id));
+      div.remove();
+    };
+
+    container.appendChild(div);
+  });
+
+}  
   
   
 </script>
