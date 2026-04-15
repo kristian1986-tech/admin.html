@@ -337,8 +337,9 @@ const completedRides = snapshot.docs
   .map(doc => doc.data())
   .filter(r => r.status === "completed");
 
-const lastRide = completedRides[completedRides.length - 1];
-
+const lastRide = completedRides[completedRides.length - 1]
+ : { phone: "-" };
+  
   // 🔥 SALVARE ÎN FIRESTORE
   await addDoc(collection(db, "promoWinners"), {
    rideNumber: currentStep * STEP 
