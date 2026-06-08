@@ -1120,6 +1120,7 @@ window.confirmYear = function(){
 
 
 
+
 window.exportDAC7 = async function(){
 
 const driverId = driverFilter.value;
@@ -1145,7 +1146,7 @@ driver = docSnap.data();
 });
 
 if(!driver){
-alert("Řidič nenalezen");
+alert("Řidič nebyl nalezen");
 return;
 }
 
@@ -1191,54 +1192,60 @@ const pdf = new jsPDF();
 let y = 20;
 
 pdf.setFontSize(18);
-pdf.text("DAC7 REPORT",105,y,{align:"center"});
+pdf.text("DAC7 HLÁŠENÍ",105,y,{align:"center"});
 y += 15;
 
 pdf.setFontSize(11);
 
-pdf.text("Year: " + year,20,y);
+pdf.text("Rok: " + year,20,y);
 y += 10;
 
-pdf.text("Name: " + (driver.name || ""),20,y);
+pdf.text("Jméno: " + (driver.name || ""),20,y);
 y += 8;
 
-pdf.text("ICO: " + (driver.ico || ""),20,y);
+pdf.text("IČO: " + (driver.ico || ""),20,y);
 y += 8;
 
-pdf.text("DIC: " + (driver.dic || ""),20,y);
+pdf.text("DIČ: " + (driver.dic || ""),20,y);
 y += 8;
 
-pdf.text("Birth Date: " + (driver.birthDate || ""),20,y);
+pdf.text("Datum narození: " + (driver.birthDate || ""),20,y);
 y += 8;
 
-pdf.text("Address: " + (driver.address || ""),20,y);
+pdf.text("Adresa: " + (driver.address || ""),20,y);
 y += 8;
 
-pdf.text("Country: " + (driver.country || ""),20,y);
+pdf.text("Stát: " + (driver.country || ""),20,y);
 y += 8;
 
-pdf.text("Tax Residence: " + (driver.taxResidence || ""),20,y);
+pdf.text("Daňová rezidence: " + (driver.taxResidence || ""),20,y);
+y += 8;
+
+pdf.text("Email: " + (driver.email || ""),20,y);
+y += 8;
+
+pdf.text("Telefon: " + (driver.phone || ""),20,y);
 y += 15;
 
 pdf.setFontSize(13);
 
-pdf.text("Trips: " + tripCount,20,y);
+pdf.text("Počet jízd: " + tripCount,20,y);
 y += 10;
 
 pdf.text(
-"Gross Revenue: " +
+"Hrubý příjem: " +
 grossRevenue +
-" CZK",
+" Kč",
 20,
 y
 );
 
 pdf.save(
-`DAC7_${driver.name}_${year}.pdf`
+`DAC7_Hlaseni_${driver.name}_${year}.pdf`
 );
 
 }
-  
+
   
 
 window.toggleSpamPanel = function(){
